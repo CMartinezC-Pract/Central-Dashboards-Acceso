@@ -84,8 +84,7 @@ Ejemplos: `sp_Dashboards_ObtenerTodos`, `sp_Incidencias_Crear`, `sp_Usuarios_Obt
 La aplicación corre en la red corporativa de Grupo Xcaret:
 
 ```
-http://10.9.118.53:5231
-https://10.9.118.53:7096
+
 ```
 
 > ⚠️ Acceso exclusivo desde la red interna de Grupo Xcaret.

@@ -1,0 +1,119 @@
+﻿@page
+@model CentralDashboards.Pages.Admin.UnidadesNegocio.IndexModel
+@{
+    ViewData["Title"] = "Unidades de Negocio";
+}
+
+<!-- HEADER -->
+<div class="page-header">
+    <div class="page-header-left">
+        <div class="module-icon admin"><i class="bi bi-building-fill"></i></div>
+        <div>
+            <h2 class="page-title">Unidades de Negocio</h2>
+            <p class="page-sub">Gestiona las unidades de negocio del sistema</p>
+        </div>
+    </div>
+    <a href="/Admin/UnidadesNegocio/Create" class="btn-primary-action">
+        <i class="bi bi-plus-lg"></i> Nueva Unidad
+    </a>
+</div>
+
+<!-- BUSCADOR -->
+<div class="cd-search-wrap">
+    <i class="bi bi-search cd-search-ico"></i>
+    <input type="text" id="buscador" class="cd-search-inp"
+           placeholder="Buscar por nombre..." oninput="filtrar(this.value)" />
+</div>
+
+<!-- TABLA -->
+@if (!Model.Unidades.Any())
+{
+    <div class="empty-state">
+        <i class="bi bi-building"></i>
+        <p>No hay unidades de negocio registradas. <a href="/Admin/UnidadesNegocio/Create">Crear la primera</a>.</p>
+    </div>
+}
+else
+{
+    <div class="cd-table-wrap">
+        <div class="cd-table-scroll">
+            <table class="cd-table">
+                <thead>
+                    <tr>
+                        <th style="width:56px">Ícono</th>
+                        <th>Nombre / Descripción</th>
+                        <th>Creación</th>
+                        <th>Estatus</th>
+                        <th style="width:130px">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaBody">
+                    @foreach (var u in Model.Unidades)
+                    {
+                        <tr data-nombre="@u.Nombre.ToLower()">
+                            <td>
+                                <div class="un-icono">
+                                    @if (!string.IsNullOrEmpty(u.IconoURL))
+                                    {
+                                        <img src="@u.IconoURL" alt="@u.Nombre"
+                                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" />
+                                        <i class="bi bi-building-fill" style="display:none"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="bi bi-building-fill"></i>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <span class="cd-table-name">@u.Nombre</span>
+                                @if (!string.IsNullOrEmpty(u.Descripcion))
+                                {
+                                    <div class="cd-table-sub cd-table-sub--ellipsis">@u.Descripcion</div>
+                                }
+                            </td>
+                            <td>
+                                <span style="font-size:.78rem;color:var(--c-ink-3);font-family:var(--font-mono)">
+                                    @u.FechaCreacion.ToString("dd/MM/yyyy")
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge-pill @(u.Activo ? "badge-activo" : "badge-inactivo")">
+                                    <i class="bi @(u.Activo ? "bi-check-circle-fill" : "bi-x-circle-fill")"></i>
+                                    @(u.Activo ? "Activo" : "Inactivo")
+                                </span>
+                            </td>
+                            <td>
+                                <div style="display:flex;gap:.35rem;align-items:center">
+                                    <a href="/Admin/UnidadesNegocio/Edit?id=@u.UnidadID"
+                                       class="btn-tbl btn-tbl-edit" title="Editar">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="cd-table-footer">
+            <span id="contadorResultados">@Model.Unidades.Count() unidades</span>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function filtrar(q) {
+            q = q.toLowerCase().trim();
+            let visibles = 0;
+            document.querySelectorAll('#tablaBody tr').forEach(function (row) {
+                const ok = !q || row.dataset.nombre.includes(q);
+                row.style.display = ok ? '' : 'none';
+                if (ok) visibles++;
+            });
+            const c = document.getElementById('contadorResultados');
+            if (c) c.textContent = visibles + ' unidad' + (visibles !== 1 ? 'es' : '');
+        }
+    </script>
+}

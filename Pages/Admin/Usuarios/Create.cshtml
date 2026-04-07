@@ -1,0 +1,180 @@
+@page
+@model CentralDashboards.Pages.Admin.Usuarios.CreateModel
+@{
+    ViewData["Title"] = "Nuevo Usuario";
+}
+
+<style>
+    :root {
+        --pur: #5c2d9e;
+        --pur2: #7c4dbe;
+        --pur-light: #9d6fd4;
+        --pur-pale: #f2ecff;
+        --pur-border: #cdb8f0;
+        --red: #e8304a;
+        --text: #1a0f2e;
+        --soft: #8070a8;
+        --border: #e0d5f5;
+    }
+
+    .create-header { display:flex; align-items:center; gap:1rem; margin-bottom:2rem; }
+
+    .btn-back {
+        width:40px; height:40px; border-radius:11px; background:#fff;
+        border:1.5px solid var(--border); display:inline-flex; align-items:center;
+        justify-content:center; color:var(--soft); font-size:1rem; text-decoration:none;
+        flex-shrink:0; transition:background .15s,color .15s,transform .15s;
+        box-shadow:0 2px 8px rgba(0,0,0,.06);
+    }
+    .btn-back:hover { background:var(--pur); color:#fff; border-color:var(--pur); transform:translateY(-1px); }
+
+    .create-header-text h2 { font-size:1.6rem; font-weight:900; color:var(--text); margin:0; }
+    .create-header-text p  { font-size:.82rem; color:var(--soft); margin:.15rem 0 0; }
+
+    .create-card {
+        background:#fff; border:1px solid var(--border); border-radius:20px;
+        overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,.06);
+        max-width:620px; margin:0 auto;
+    }
+
+    .create-card-header {
+        background:linear-gradient(135deg,var(--pur) 0%,var(--pur2) 60%,var(--pur-light) 100%);
+        padding:1.25rem 1.75rem; display:flex; align-items:center; gap:.75rem;
+    }
+    .create-card-header .hico {
+        width:40px; height:40px; border-radius:11px; background:rgba(255,255,255,.18);
+        display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.2rem;
+    }
+    .create-card-header h5 { color:#fff; font-weight:800; font-size:1rem; margin:0; }
+    .create-card-header p  { color:rgba(255,255,255,.7); font-size:.75rem; margin:.1rem 0 0; }
+
+    .create-card-body { padding:1.75rem; }
+
+    .field-group { margin-bottom:1.4rem; }
+
+    .field-label {
+        display:block; font-size:.7rem; font-weight:800; text-transform:uppercase;
+        letter-spacing:1px; color:var(--pur); margin-bottom:.45rem;
+    }
+    .field-label .req { color:var(--red); margin-left:.2rem; }
+
+    .field-control {
+        width:100%; border:2px solid var(--border); border-radius:11px;
+        padding:.65rem 1rem; font-size:.88rem; color:var(--text); background:#fff;
+        outline:none; transition:border-color .15s,box-shadow .15s;
+        font-family:'Segoe UI',sans-serif; box-sizing:border-box;
+        appearance:none;
+    }
+    select.field-control {
+        background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 16 16'%3E%3Cpath fill='%238070a8' d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat:no-repeat; background-position:right .75rem center; padding-right:2.2rem;
+    }
+    .field-control:focus { border-color:var(--pur2); box-shadow:0 0 0 3px rgba(124,77,190,.13); }
+
+    .field-error { font-size:.73rem; color:var(--red); margin-top:.3rem; display:block; }
+
+    .two-col { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.4rem; }
+
+    .create-footer {
+        border-top:1px solid #f0ebff; padding-top:1.25rem;
+        display:flex; justify-content:flex-end; gap:.65rem;
+    }
+
+    .btn-cancel {
+        display:inline-flex; align-items:center; gap:.4rem; background:#f5f5f5;
+        color:#666; border:1px solid #ddd; border-radius:11px; padding:.6rem 1.25rem;
+        font-size:.85rem; font-weight:700; text-decoration:none; transition:background .15s;
+    }
+    .btn-cancel:hover { background:#eaeaea; color:#333; }
+
+    .btn-submit {
+        display:inline-flex; align-items:center; gap:.5rem;
+        background:linear-gradient(135deg,var(--pur),var(--pur2));
+        color:#fff; border:none; border-radius:11px; padding:.6rem 1.6rem;
+        font-size:.88rem; font-weight:800; cursor:pointer;
+        box-shadow:0 4px 14px rgba(92,45,158,.35);
+        transition:transform .15s,box-shadow .15s;
+    }
+    .btn-submit:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(92,45,158,.45); color:#fff; }
+
+    @@media (max-width:600px) { .two-col { grid-template-columns:1fr; } }
+</style>
+
+<!-- HEADER -->
+<div class="create-header">
+    <a href="/Admin/Usuarios" class="btn-back"><i class="bi bi-arrow-left"></i></a>
+    <div class="create-header-text">
+        <h2>Nuevo Usuario</h2>
+        <p>Registra un nuevo acceso al sistema</p>
+    </div>
+</div>
+
+<!-- CARD -->
+<div class="create-card">
+    <div class="create-card-header">
+        <div class="hico"><i class="bi bi-person-plus-fill"></i></div>
+        <div>
+            <h5>Crear Usuario</h5>
+            <p>Completa todos los campos requeridos</p>
+        </div>
+    </div>
+
+    <div class="create-card-body">
+        <form method="post">
+            @Html.AntiForgeryToken()
+
+            <!-- Nombre -->
+            <div class="field-group">
+                <label class="field-label" asp-for="Input.Nombre">
+                    Nombre completo <span class="req">*</span>
+                </label>
+                <input asp-for="Input.Nombre" class="field-control"
+                       placeholder="JUAN PÉREZ GARCÍA"
+                       oninput="this.value = this.value.toUpperCase()" />
+                <span asp-validation-for="Input.Nombre" class="field-error"></span>
+            </div>
+
+            <!-- Correo -->
+            <div class="field-group">
+                <label class="field-label" asp-for="Input.Correo">
+                    Correo corporativo <span class="req">*</span>
+                </label>
+                <input asp-for="Input.Correo" type="email" class="field-control"
+                       placeholder="usuario@gruopxcaret.com" />
+                <span asp-validation-for="Input.Correo" class="field-error"></span>
+            </div>
+
+            <!-- Rol + Área -->
+            <div class="two-col">
+                <div class="field-group" style="margin-bottom:0">
+                    <label class="field-label" asp-for="Input.RolID">
+                        Rol <span class="req">*</span>
+                    </label>
+                    <select asp-for="Input.RolID" asp-items="Model.Roles" class="field-control">
+                        <option value="">Selecciona rol...</option>
+                    </select>
+                </div>
+                <div class="field-group" style="margin-bottom:0">
+                    <label class="field-label" asp-for="Input.AreaID">Área</label>
+                    <select asp-for="Input.AreaID" asp-items="Model.Areas" class="field-control">
+                        <option value="">Sin área específica</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Botones -->
+            <div class="create-footer">
+                <a href="/Admin/Usuarios" class="btn-cancel">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </a>
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-person-check-fill"></i> Crear usuario
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,395 @@
+@page
+@model CentralDashboards.Pages.Account.LoginModel
+@{
+    Layout = null;
+    ViewData["Title"] = "Acceso";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="/img/Icon.svg" rel="icon" type="image/svg+xml" />
+    <title>Central Dashboards — Acceso</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="login-body">
+
+    <div class="login-split">
+
+        <!-- Panel izquierdo — branding -->
+        <div class="login-brand-panel">
+            <div class="login-brand-content">
+                <div class="login-brand-logo">
+                    <img src="~/img/logo_2.png" alt="Logo" />
+                </div>
+                <h1 class="login-brand-title">Central<br />Dashboards</h1>
+                <p class="login-brand-sub">Grupo Xcaret</p>
+                <blockquote class="login-brand-quote">
+                    "No somos cierres contables — nuestro objetivo es que se tomen
+                    decisiones con base en información."
+                </blockquote>
+                <div class="login-brand-pills">
+                    <span class="login-pill"><i class="bi bi-bar-chart-fill"></i> Power BI</span>
+                    <span class="login-pill"><i class="bi bi-shield-check"></i> Seguro</span>
+                    <span class="login-pill"><i class="bi bi-clock-fill"></i> 24/7</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel derecho — formulario -->
+        <div class="login-form-panel">
+            <div class="login-form-wrap">
+
+                <div class="login-form-header">
+                    <h2 class="login-form-title">Iniciar sesión</h2>
+                    <p class="login-form-sub">Ingresa tu correo corporativo para continuar</p>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+                {
+                    <div class="login-alert">
+                        <i class="bi bi-x-circle-fill"></i>
+                        @Model.ErrorMessage
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.SuccessMessage))
+                {
+                    <div class="login-alert login-alert--ok">
+                        <i class="bi bi-check-circle-fill"></i>
+                        @Model.SuccessMessage
+                    </div>
+                }
+
+                <form method="post">
+                    @Html.AntiForgeryToken()
+
+                    <div class="login-field">
+                        <label class="login-label">Correo corporativo</label>
+                        <div class="login-input-wrap">
+                            <i class="bi bi-envelope login-input-ico"></i>
+                            <input asp-for="Input.Correo" type="email"
+                                   class="login-input" placeholder="usuario@xcaret.com" />
+                        </div>
+                        <span asp-validation-for="Input.Correo" class="login-validation"></span>
+                    </div>
+
+                    <button type="submit" class="login-submit">
+                        <i class="bi bi-box-arrow-in-right"></i> Entrar
+                    </button>
+                </form>
+
+                <div class="login-register-link">
+                    ¿Eres nuevo en el sistema?
+                    <button type="button" class="login-link-btn" onclick="abrirRegistro()">
+                        Solicitar acceso
+                    </button>
+                </div>
+
+                <p class="login-footer-note">
+                    Plataforma de uso interno &middot; Área de Innovación y Optimización
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════
+         MODAL — REGISTRO DE NUEVO USUARIO
+    ══════════════════════════════════════ -->
+    <div class="reg-overlay" id="regOverlay" onclick="cerrarRegistro(event)">
+        <div class="reg-modal">
+
+            <div class="reg-modal-header">
+                <div class="reg-modal-ico"><i class="bi bi-person-plus-fill"></i></div>
+                <div>
+                    <h4 class="reg-modal-title">Solicitar acceso</h4>
+                    <p class="reg-modal-sub">Completa tus datos para registrarte</p>
+                </div>
+                <button type="button" class="reg-close" onclick="cerrarRegistro()">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <div id="regAlert" class="login-alert" style="display:none;margin-bottom:1rem"></div>
+
+            <form method="post" asp-page-handler="Registro" id="formRegistro">
+                @Html.AntiForgeryToken()
+
+                <!-- Nombre -->
+                <div class="login-field">
+                    <label class="login-label">
+                        Nombre completo <span style="color:#e8304a">*</span>
+                    </label>
+                    <div class="login-input-wrap">
+                        <i class="bi bi-person login-input-ico"></i>
+                        <input asp-for="Registro.Nombre" type="text"
+                               class="login-input" placeholder="JUAN PÉREZ GARCÍA"
+                               oninput="this.value = this.value.toUpperCase()" />
+                    </div>
+                    <span asp-validation-for="Registro.Nombre" class="login-validation"></span>
+                </div>
+
+                <!-- Correo -->
+                <div class="login-field">
+                    <label class="login-label">
+                        Correo corporativo <span style="color:#e8304a">*</span>
+                    </label>
+                    <div class="login-input-wrap">
+                        <i class="bi bi-envelope login-input-ico"></i>
+                        <input asp-for="Registro.Correo" type="email"
+                               class="login-input" placeholder="usuario@gruopxcaret.com" />
+                    </div>
+                    <span asp-validation-for="Registro.Correo" class="login-validation"></span>
+                </div>
+
+                <!-- Área con autocomplete -->
+                <div class="login-field" style="position:relative">
+                    <label class="login-label">Área</label>
+                    <div class="login-input-wrap">
+                        <i class="bi bi-building login-input-ico"></i>
+                        <input type="text" id="areaInput" class="login-input"
+                               placeholder="Ej: Innovación y Optimización"
+                               autocomplete="off"
+                               oninput="filtrarAreas(this.value)" />
+                    </div>
+                    <input type="hidden" asp-for="Registro.AreaID" id="areaIdHidden" />
+                    <input type="hidden" asp-for="Registro.AreaNueva" id="areaNuevaHidden" />
+                    <div class="area-suggestions" id="areaSuggestions"></div>
+                </div>
+
+                <button type="submit" class="login-submit" style="margin-top:.5rem">
+                    <i class="bi bi-person-check-fill"></i> Registrarme
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+    <style>
+        /* ── alerta éxito ── */
+        .login-alert--ok {
+            background: #ecfdf5;
+            color: #065f46;
+            border: 1px solid #6ee7b7;
+        }
+
+        /* ── link de registro ── */
+        .login-register-link {
+            text-align: center;
+            font-size: .8rem;
+            color: #999;
+            margin-top: 1.2rem;
+        }
+
+        .login-link-btn {
+            background: none;
+            border: none;
+            color: #5c2d9e;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: .8rem;
+            padding: 0;
+            text-decoration: underline;
+        }
+
+            .login-link-btn:hover { color: #7c4dbe; }
+
+        /* ── overlay ── */
+        .reg-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(10,6,22,.55);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+            .reg-overlay.active { display: flex; }
+
+        /* ── modal ── */
+        .reg-modal {
+            background: #fff;
+            border-radius: 20px;
+            padding: 1.75rem;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 20px 60px rgba(0,0,0,.25);
+            animation: regIn .25s ease;
+        }
+
+        @@keyframes regIn {
+            from { opacity: 0; transform: translateY(16px) scale(.97); }
+            to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .reg-modal-header {
+            display: flex;
+            align-items: center;
+            gap: .85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .reg-modal-ico {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg,#5c2d9e,#7c4dbe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .reg-modal-title {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: #1a0f2e;
+            margin: 0;
+        }
+
+        .reg-modal-sub {
+            font-size: .75rem;
+            color: #8070a8;
+            margin: .1rem 0 0;
+        }
+
+        .reg-close {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 1rem;
+            cursor: pointer;
+            padding: .25rem;
+            border-radius: 8px;
+            transition: background .15s, color .15s;
+        }
+
+            .reg-close:hover { background: #f3f0f9; color: #5c2d9e; }
+
+        /* ── autocomplete área ── */
+        .area-suggestions {
+            position: absolute;
+            top: calc(100% - 2px);
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1.5px solid #cdb8f0;
+            border-top: none;
+            border-radius: 0 0 11px 11px;
+            max-height: 180px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+            box-shadow: 0 8px 24px rgba(92,45,158,.12);
+        }
+
+        .area-opt {
+            padding: .55rem 1rem;
+            font-size: .85rem;
+            cursor: pointer;
+            color: #1a0f2e;
+            transition: background .1s;
+        }
+
+            .area-opt:hover, .area-opt.active { background: #f2ecff; color: #5c2d9e; }
+
+        .area-opt-new {
+            padding: .55rem 1rem;
+            font-size: .82rem;
+            color: #5c2d9e;
+            font-weight: 700;
+            cursor: pointer;
+            border-top: 1px solid #f0ebff;
+            display: flex;
+            align-items: center;
+            gap: .4rem;
+        }
+
+            .area-opt-new:hover { background: #f2ecff; }
+    </style>
+
+    <script>
+        // Áreas — se cargan la primera vez que se abre el modal
+        let areasDisponibles = [];
+        let areasYaCargadas = false;
+
+        async function abrirRegistro() {
+            document.getElementById('regOverlay').classList.add('active');
+            if (!areasYaCargadas) {
+                try {
+                    const resp = await fetch('?handler=Areas');
+                    areasDisponibles = await resp.json();
+                    areasYaCargadas = true;
+                } catch(e) {
+                    console.warn('No se pudieron cargar las áreas', e);
+                }
+            }
+        }
+
+        function cerrarRegistro(e) {
+            if (!e || e.target === document.getElementById('regOverlay')) {
+                document.getElementById('regOverlay').classList.remove('active');
+            }
+        }
+
+        function filtrarAreas(query) {
+            const box = document.getElementById('areaSuggestions');
+            const hidden = document.getElementById('areaIdHidden');
+            hidden.value = ''; // limpiar selección al escribir de nuevo
+
+            if (!query || query.trim().length < 2) { box.style.display = 'none'; return; }
+
+            const q = query.toLowerCase();
+            const matches = areasDisponibles.filter(a => a.nombre.toLowerCase().includes(q));
+
+            box.innerHTML = '';
+
+            matches.forEach(a => {
+                const div = document.createElement('div');
+                div.className = 'area-opt';
+                div.textContent = a.nombre;
+                div.onclick = () => {
+                    document.getElementById('areaInput').value = a.nombre;
+                    hidden.value = a.id;
+                    box.style.display = 'none';
+                };
+                box.appendChild(div);
+            });
+
+            // opción "crear nueva área" si no hay coincidencia exacta
+            const exacta = areasDisponibles.find(a => a.nombre.toLowerCase() === q);
+            if (!exacta) {
+                const div = document.createElement('div');
+                div.className = 'area-opt-new';
+                div.innerHTML = `<i class="bi bi-plus-circle"></i> Registrar "${query}" como nueva área`;
+                div.onclick = () => {
+                    hidden.value = '';          // sin ID = nueva área
+                    document.getElementById('areaNuevaHidden').value = query;
+                    box.style.display = 'none';
+                };
+                box.appendChild(div);
+            }
+
+            box.style.display = matches.length || !exacta ? 'block' : 'none';
+        }
+
+        // cerrar sugerencias al hacer click fuera
+        document.addEventListener('click', e => {
+            const wrap = document.getElementById('areaInput')?.closest('.login-field');
+            if (wrap && !wrap.contains(e.target)) {
+                document.getElementById('areaSuggestions').style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

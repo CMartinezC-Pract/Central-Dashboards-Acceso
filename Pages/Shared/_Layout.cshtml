@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="/img/Icon.svg" rel="icon" type="image/svg+xml" />
+    <title>@ViewData["Title"] — Central Dashboards</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <script>
+        /* ── MODAL DE CONFIRMACIÓN GLOBAL ─────────────────────────────── */
+        let _cdConfirmResolve = null;
+
+        function _cdShowConfirm(titulo, mensaje, labelOk, colorOk) {
+            return new Promise(resolve => {
+                _cdConfirmResolve = resolve;
+                document.getElementById('cdcTitle').textContent   = titulo;
+                document.getElementById('cdcMsg').innerHTML       = mensaje;
+                const btnOk = document.getElementById('cdcOk');
+                btnOk.textContent    = labelOk  || 'Confirmar';
+                btnOk.style.background = colorOk || 'var(--c-danger)';
+                document.getElementById('cdcOverlay').classList.add('open');
+            });
+        }
+
+        function _cdCloseConfirm(result) {
+            document.getElementById('cdcOverlay').classList.remove('open');
+            if (_cdConfirmResolve) { _cdConfirmResolve(result); _cdConfirmResolve = null; }
+        }
+
+        /* confirmarBaja(nombre)        → Promise<bool>  (para forms POST)
+           confirmarBaja(url, nombre)   → navega si confirma              */
+        function confirmarBaja(urlOrNombre, nombre) {
+            // Patrón 2: confirmarBaja(url, nombre)
+            if (nombre !== undefined) {
+                return _cdShowConfirm(
+                    'Desactivar registro',
+                    `¿Estás seguro de desactivar <strong>"${nombre}"</strong>?<br><span style="font-size:.8rem;color:var(--c-ink-3)">Esta acción se puede revertir después.</span>`,
+                    'Desactivar', 'var(--c-danger)'
+                ).then(ok => { if (ok) window.location.href = urlOrNombre; });
+            }
+            // Patrón 1: confirmarBaja(nombre) → retorna Promise<bool>
+            return _cdShowConfirm(
+                'Desactivar registro',
+                `¿Estás seguro de desactivar <strong>"${urlOrNombre}"</strong>?<br><span style="font-size:.8rem;color:var(--c-ink-3)">Esta acción se puede revertir después.</span>`,
+                'Desactivar', 'var(--c-danger)'
+            );
+        }
+
+        /* Reemplaza confirmarActivar */
+        async function confirmarActivar(url, nombre) {
+            const ok = await _cdShowConfirm(
+                'Reactivar registro',
+                `¿Reactivar <strong>"${nombre}"</strong>?`,
+                'Reactivar',
+                'var(--c-success)'
+            );
+            if (ok) window.location.href = url;
+        }
+
+        /* Helper para botones submit con confirmarBaja:
+           Uso: onclick="cdcConfirmSubmit(event, this, 'Nombre')"          */
+        async function cdcConfirmSubmit(event, btn, nombre) {
+            event.preventDefault();
+            const ok = await confirmarBaja(nombre);
+            if (ok) btn.closest('form').submit();
+        }
+    </script>
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+
+    @{
+        bool autenticado = User.Identity?.IsAuthenticated == true;
+        string nombreUsuario = "";
+        string rolUsuario = "";
+        string paginaActual = "";
+        bool esAdmin = false;
+
+        if (autenticado)
+        {
+            nombreUsuario = User.FindFirst("Nombre")?.Value ?? "Usuario";
+            rolUsuario = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "";
+            paginaActual = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
+            esAdmin = rolUsuario == "Administrador";
+        }
+    }
+
+    @if (autenticado)
+    {
+        <header class="cd-header">
+
+            <!-- BRAND -->
+            <a href="/" class="cd-brand">
+                <img src="~/img/logo.svg" alt="Logo" onerror="this.style.display='none'" />
+                <div class="cd-brand-texts">
+                    <span class="cd-brand-name">Central Dashboards</span>
+                    <span class="cd-brand-sub">Grupo Xcaret</span>
+                </div>
+            </a>
+
+            <div class="cd-divider"></div>
+
+            <!-- NAV USUARIO -->
+            @if (!esAdmin)
+            {
+                <nav class="cd-nav">
+                    <a href="/" class="cd-nav-link @(paginaActual == "/Index" ? "active" : "")">
+                        <i class="bi bi-house-door-fill"></i> Inicio
+                    </a>
+                    <a href="/?VerAreas=true" class="cd-nav-link">
+                        <i class="bi bi-grid-3x3-gap-fill"></i> Unidades de Negocio
+                    </a>
+                    <div class="cd-dropdown">
+                        <button class="cd-dropdown-toggle @(paginaActual.StartsWith("/Incidencias") || paginaActual.StartsWith("/Solicitudes") ? "active" : "")">
+                            <i class="bi bi-ticket-perforated-fill"></i> Tickets
+                            <i class="bi bi-chevron-down arrow"></i>
+                        </button>
+                        <div class="cd-dropdown-menu">
+                            <a href="/Incidencias" class="cd-dropdown-item">
+                                <i class="bi bi-exclamation-triangle-fill" style="color:var(--c-danger)"></i> Mis Incidencias
+                            </a>
+                            <a href="/Solicitudes" class="cd-dropdown-item">
+                                <i class="bi bi-clipboard-plus-fill" style="color:var(--c-warn)"></i> Mis Solicitudes
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            }
+
+            <!-- NAV ADMIN -->
+            @if (esAdmin)
+            {
+                <nav class="cd-nav">
+                    <a href="/" class="cd-nav-link @(paginaActual == "/Index" ? "active" : "")">
+                        <i class="bi bi-house-door-fill"></i> Inicio
+                    </a>
+                    <a href="/?VerAreas=true" class="cd-nav-link">
+                        <i class="bi bi-grid-3x3-gap-fill"></i> Unidades de Negocio
+                    </a>
+                    <a href="/Dashboards" class="cd-nav-link @(paginaActual.StartsWith("/Dashboards") ? "active" : "")">
+                        <i class="bi bi-card-list"></i> Dashboards
+                    </a>
+                    <div class="cd-dropdown">
+                        <button class="cd-dropdown-toggle @(paginaActual.StartsWith("/Incidencias") || paginaActual.StartsWith("/Solicitudes") ? "active" : "")">
+                            <i class="bi bi-ticket-perforated-fill"></i> Tickets
+                            <i class="bi bi-chevron-down arrow"></i>
+                        </button>
+                        <div class="cd-dropdown-menu">
+                            <a href="/Incidencias" class="cd-dropdown-item">
+                                <i class="bi bi-exclamation-triangle-fill" style="color:var(--c-danger)"></i> Incidencias
+                            </a>
+                            <a href="/Solicitudes" class="cd-dropdown-item">
+                                <i class="bi bi-clipboard-plus-fill" style="color:var(--c-warn)"></i> Solicitudes
+                            </a>
+                        </div>
+                    </div>
+                    <div class="cd-dropdown">
+                        <button class="cd-dropdown-toggle @(paginaActual.StartsWith("/Admin") ? "active" : "")">
+                            <i class="bi bi-shield-fill-check"></i> Admin
+                            <i class="bi bi-chevron-down arrow"></i>
+                        </button>
+                        <div class="cd-dropdown-menu">
+                            <a href="/Admin/Usuarios" class="cd-dropdown-item">
+                                <i class="bi bi-people-fill" style="color:var(--c-accent)"></i> Usuarios
+                            </a>
+                            <a href="/Admin/Areas" class="cd-dropdown-item">
+                                <i class="bi bi-building-fill" style="color:var(--c-accent)"></i> Áreas
+                            </a>
+                            <a href="/Admin/UnidadesNegocio" class="cd-dropdown-item">
+                                <i class="bi bi-diagram-3-fill" style="color:var(--c-accent)"></i> Unidades de Negocio
+                            </a>
+                            <a href="/Admin/Avisos" class="cd-dropdown-item">
+                                <i class="bi bi-chat-square-heart-fill" style="color:var(--c-accent)"></i> Avisos y Noticias
+                            </a>
+
+                            <div class="cd-dropdown-divider"></div>
+                            <a href="/Admin/Auditoria" class="cd-dropdown-item">
+                                <i class="bi bi-clock-history" style="color:var(--c-ink-3)"></i> Auditoría
+                            </a>
+                            <a href="/Admin/Catalogos" class="cd-dropdown-item">
+                                <i class="bi bi-list-ul" style="color:var(--c-ink-3)"></i> Catálogos
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            }
+
+            <!-- DERECHA -->
+            <div class="cd-right">
+
+                <!-- Campanita -->
+                <div class="cd-dropdown" id="notifDropdown" style="position:relative;">
+                    <div class="notif-btn" id="notifBtn" onclick="toggleNotifPanel(event)">
+                        <i class="bi bi-bell-fill"></i>
+                        <span class="notif-badge" id="notifBadge"></span>
+                    </div>
+                    <div class="notif-panel" id="notifPanel">
+                        <div class="notif-panel-header">
+                            <span><i class="bi bi-bell-fill"></i> Notificaciones</span>
+                            <button onclick="marcarTodas()">Marcar todas leídas</button>
+                        </div>
+                        <div class="notif-list" id="notifList">
+                            <div class="notif-empty" id="notifEmpty">
+                                <i class="bi bi-bell-slash"></i>
+                                <p>Sin notificaciones</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cd-divider"></div>
+
+                <div class="cd-user">
+                    <span class="cd-user-name">
+                        @nombreUsuario
+                        @if (esAdmin)
+                        {
+                            <span class="cd-admin-badge">ADMIN</span>
+                        }
+                    </span>
+                    <span class="cd-user-role">@rolUsuario</span>
+                </div>
+
+                
+
+
+                <form method="post" action="/Account/Logout" style="margin:0">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="cd-logout">
+                        <i class="bi bi-box-arrow-right"></i> Salir
+                    </button>
+                </form>
+
+
+            </div>
+
+        </header>
+
+        @if (TempData["Exito"] != null)
+        {
+            <div class="alert alert-xcaret-ok alert-dismissible fade show mx-3 mt-3 mb-0" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>@TempData["Exito"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-xcaret-err alert-dismissible fade show mx-3 mt-3 mb-0" role="alert">
+                <i class="bi bi-x-circle-fill me-2"></i>@TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        <main class="cd-main">
+            <div class="cd-container">
+                @RenderBody()
+            </div>
+        </main>
+
+        <footer class="cd-footer">
+            &copy; 2026 &mdash; Área de Innovación y Optimización &middot; Grupo Xcaret &middot; Power BI Central
+        </footer>
+
+        <div class="notif-toast-wrap" id="toastWrap"></div>
+    }
+    else
+    {
+        <main class="cd-main">@RenderBody()</main>
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ── DROPDOWNS NAV ──────────────────────────────────────────
+        document.querySelectorAll(".cd-dropdown-toggle").forEach(function (btn) {
+            btn.addEventListener("click", function (e) {
+                e.stopPropagation();
+                var menu   = btn.nextElementSibling;
+                var isOpen = menu.classList.contains("open");
+                document.querySelectorAll(".cd-dropdown-menu.open").forEach(m => m.classList.remove("open"));
+                document.querySelectorAll(".cd-dropdown-toggle.open").forEach(b => b.classList.remove("open"));
+                if (!isOpen) { menu.classList.add("open"); btn.classList.add("open"); }
+            });
+        });
+        document.addEventListener("click", function (e) {
+            if (!e.target.closest('#notifDropdown')) {
+                document.getElementById('notifPanel')?.classList.remove('open');
+            }
+            document.querySelectorAll(".cd-dropdown-menu.open").forEach(m => m.classList.remove("open"));
+            document.querySelectorAll(".cd-dropdown-toggle.open").forEach(b => b.classList.remove("open"));
+        });
+
+        // ── NOTIFICACIONES ─────────────────────────────────────────
+        let notifIds = new Set();
+        let primeraCarga = true;
+
+        function toggleNotifPanel(e) {
+            e.stopPropagation();
+            const panel = document.getElementById('notifPanel');
+            panel.classList.toggle('open');
+            if (panel.classList.contains('open')) cargarNotificaciones();
+        }
+
+        async function cargarNotificaciones() {
+            try {
+                const res  = await fetch('/Notificaciones/Api?handler=Listar');
+                const list = await res.json();
+
+                const badge  = document.getElementById('notifBadge');
+                const ul     = document.getElementById('notifList');
+                const empty  = document.getElementById('notifEmpty');
+                const noLeid = list.filter(n => !n.leida).length;
+
+                if (noLeid > 0) {
+                    badge.textContent = noLeid > 99 ? '99+' : noLeid;
+                    badge.style.display = 'flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+
+                if (!primeraCarga) {
+                    list.forEach(n => {
+                        if (!notifIds.has(n.notificacionID) && !n.leida) mostrarToast(n);
+                    });
+                }
+                primeraCarga = false;
+                list.forEach(n => notifIds.add(n.notificacionID));
+
+                if (list.length === 0) {
+                    empty.style.display = 'block';
+                    ul.querySelectorAll('.notif-item').forEach(el => el.remove());
+                    return;
+                }
+                empty.style.display = 'none';
+                ul.querySelectorAll('.notif-item').forEach(el => el.remove());
+
+                list.forEach(n => {
+                    const color = n.colorClass || 'info';
+                    const ico   = n.iconoClass || 'bi bi-bell-fill';
+                    const fecha = formatRelTime(n.fechaCreacion);
+                    const href  = n.url || '#';
+
+                    const el = document.createElement('a');
+                    el.href = href;
+                    el.className = `notif-item ${n.leida ? '' : 'unread'}`;
+                    el.dataset.id = n.notificacionID;
+                    el.innerHTML = `
+                        <div class="notif-ico ${color}"><i class="${ico}"></i></div>
+                        <div class="notif-body">
+                            <div class="notif-title">${n.titulo}</div>
+                            <div class="notif-msg">${n.mensaje}</div>
+                            <div class="notif-time">${fecha}</div>
+                        </div>
+                        ${!n.leida ? '<div class="notif-dot"></div>' : ''}`;
+                    el.addEventListener('click', () => marcarLeida(n.notificacionID, el));
+                    ul.appendChild(el);
+                });
+            } catch (e) { console.error('Error notificaciones:', e); }
+        }
+
+        async function marcarLeida(id, el) {
+            await fetch('/Notificaciones/Api?handler=MarcarLeida', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id })
+            });
+            el?.classList.remove('unread');
+            el?.querySelector('.notif-dot')?.remove();
+            actualizarBadge(-1);
+        }
+
+        async function marcarTodas() {
+            await fetch('/Notificaciones/Api?handler=MarcarTodas', { method: 'POST' });
+            document.querySelectorAll('.notif-item.unread').forEach(el => {
+                el.classList.remove('unread');
+                el.querySelector('.notif-dot')?.remove();
+            });
+            document.getElementById('notifBadge').style.display = 'none';
+        }
+
+        function actualizarBadge(delta) {
+            const badge = document.getElementById('notifBadge');
+            const val   = Math.max(0, parseInt(badge.textContent || '0') + delta);
+            badge.textContent   = val > 99 ? '99+' : val;
+            badge.style.display = val > 0 ? 'flex' : 'none';
+        }
+
+        function mostrarToast(n) {
+            const color = n.colorClass || 'info';
+            const ico   = n.iconoClass || 'bi bi-bell-fill';
+            const wrap  = document.getElementById('toastWrap');
+            const toast = document.createElement('div');
+            toast.className = `notif-toast ${color}`;
+            toast.innerHTML = `
+                <div class="notif-toast-ico ${color}"><i class="${ico}"></i></div>
+                <div>
+                    <div class="notif-toast-title">${n.titulo}</div>
+                    <div class="notif-toast-msg">${n.mensaje}</div>
+                </div>
+                <button class="notif-toast-close" onclick="this.closest('.notif-toast').remove()">
+                    <i class="bi bi-x-lg"></i>
+                </button>`;
+            wrap.appendChild(toast);
+            setTimeout(() => toast.remove(), 6000);
+        }
+
+        function formatRelTime(dateStr) {
+            const diff = Math.floor((Date.now() - new Date(dateStr)) / 1000);
+            if (diff < 60)    return 'Hace un momento';
+            if (diff < 3600)  return `Hace ${Math.floor(diff / 60)} min`;
+            if (diff < 86400) return `Hace ${Math.floor(diff / 3600)} h`;
+            return `Hace ${Math.floor(diff / 86400)} días`;
+        }
+
+        @if (autenticado)
+        {
+                <text>
+                cargarNotificaciones();
+                setInterval(cargarNotificaciones, 30000);
+                </text>
+        }
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+
+    <!-- MODAL DE CONFIRMACIÓN GLOBAL -->
+    <div id="cdcOverlay" style="display:none;position:fixed;inset:0;z-index:9999;align-items:center;justify-content:center;background:rgba(0,0,0,.45);backdrop-filter:blur(2px);">
+        <div style="background:#fff;border-radius:18px;padding:1.75rem 1.75rem 1.25rem;max-width:380px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.2);font-family:var(--font-body)">
+            <div style="display:flex;align-items:center;gap:.65rem;margin-bottom:.85rem">
+                <div id="cdcIcon" style="width:38px;height:38px;border-radius:10px;background:#fde8ea;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem;color:var(--c-danger)">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <span id="cdcTitle" style="font-size:1rem;font-weight:800;color:var(--c-ink)"></span>
+            </div>
+            <p id="cdcMsg" style="font-size:.86rem;color:var(--c-ink-2);line-height:1.55;margin:0 0 1.35rem"></p>
+            <div style="display:flex;justify-content:flex-end;gap:.55rem">
+                <button onclick="_cdCloseConfirm(false)"
+                        style="background:#f3f4f6;color:#555;border:1px solid #ddd;border-radius:10px;padding:.48rem 1.1rem;font-size:.84rem;font-weight:700;cursor:pointer;font-family:var(--font-body)">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </button>
+                <button id="cdcOk" onclick="_cdCloseConfirm(true)"
+                        style="color:#fff;border:none;border-radius:10px;padding:.48rem 1.25rem;font-size:.84rem;font-weight:700;cursor:pointer;font-family:var(--font-body);transition:filter .15s"
+                        onmouseover="this.style.filter='brightness(.88)'" onmouseout="this.style.filter=''">
+                    Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Mostrar/ocultar overlay con flex
+        const _cdOvEl = document.getElementById('cdcOverlay');
+        const _cdObserver = new MutationObserver(() => {
+            _cdOvEl.style.display = _cdOvEl.classList.contains('open') ? 'flex' : 'none';
+        });
+        _cdObserver.observe(_cdOvEl, { attributes: true, attributeFilter: ['class'] });
+        // Cerrar al click en backdrop
+        _cdOvEl.addEventListener('click', e => { if (e.target === _cdOvEl) _cdCloseConfirm(false); });
+    </script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+@page
+@model CentralDashboards.Pages.Admin.Auditoria.IndexModel
+@{
+    ViewData["Title"] = "Auditoría";
+}
+
+<!-- HEADER -->
+<div class="page-header">
+    <div class="page-header-left">
+        <div class="module-icon admin"><i class="bi bi-shield-check-fill"></i></div>
+        <div>
+            <h2 class="page-title">Auditoría del sistema</h2>
+            <p class="page-sub">Registro de todas las acciones realizadas en la plataforma</p>
+        </div>
+    </div>
+</div>
+
+<!-- TABLA -->
+<div class="cd-table-wrap">
+    <div class="cd-table-scroll">
+        <table class="cd-table">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Usuario</th>
+                    <th>Acción</th>
+                    <th>Tabla</th>
+                    <th>Registro ID</th>
+                    <th>IP</th>
+                    <th>Detalle</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Registros.Any())
+                {
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="bi bi-shield-check"></i>
+                                <p>No hay registros de auditoría.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @foreach (var a in Model.Registros)
+                {
+                    <tr>
+                        <td class="text-nowrap">
+                            <span style="font-family:var(--font-mono);font-size:.72rem;color:var(--c-ink-3)">
+                                @a.FechaAccion.ToString("dd/MM/yy HH:mm")
+                            </span>
+                        </td>
+                        <td><span class="cd-table-name">@a.Usuario</span></td>
+                        <td>
+                            <span class="audit-accion-badge">@a.Accion</span>
+                        </td>
+                        <td>
+                            <span style="font-size:.78rem;color:var(--c-ink-3)">@(a.TablaAfectada ?? "—")</span>
+                        </td>
+                        <td>
+                            <span style="font-family:var(--font-mono);font-size:.72rem;color:var(--c-ink-4)">
+                                @(a.RegistroID?.ToString() ?? "—")
+                            </span>
+                        </td>
+                        <td>
+                            <span style="font-family:var(--font-mono);font-size:.72rem;color:var(--c-ink-4)">
+                                @(a.IPOrigen ?? "—")
+                            </span>
+                        </td>
+                        <td>
+                            <span class="audit-detalle" title="@a.Detalle">
+                                @(a.Detalle?.Length > 45 ? a.Detalle.Substring(0, 45) + "…" : a.Detalle ?? "—")
+                            </span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="cd-table-footer">
+        <span>@Model.Registros.Count() registros</span>
+    </div>
+</div>

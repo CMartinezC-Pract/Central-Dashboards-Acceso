@@ -1,0 +1,72 @@
+@page
+@model CentralDashboards.Pages.Admin.Areas.EditModel
+@{
+    ViewData["Title"] = "Editar Área";
+}
+
+<!-- HEADER -->
+<div class="form-page-header form-page-header--admin">
+    <a href="/Admin/Areas" class="btn-back-sq btn-back-sq--admin">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h2 class="form-page-title">Editar Área</h2>
+        <p class="form-page-sub">Modifica el nombre del área</p>
+    </div>
+</div>
+
+<!-- CARD -->
+<div class="form-card form-card--admin">
+    <div class="form-card-header">
+        <div class="form-card-ico"><i class="bi bi-building-fill"></i></div>
+        <div>
+            <h5 class="form-card-title">Editar Área</h5>
+            <p class="form-card-sub">Los cambios se reflejarán en toda la plataforma</p>
+        </div>
+    </div>
+
+    <div class="form-card-body">
+        <form method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Input.AreaID" />
+
+            <div class="form-field">
+                <label asp-for="Input.NombreArea" class="form-field-label">
+                    Nombre <span class="form-req">*</span>
+                </label>
+                <input asp-for="Input.NombreArea" class="form-field-control"
+                       placeholder="Ej: Dirección de Operaciones" />
+                <span asp-validation-for="Input.NombreArea" class="form-field-error"></span>
+            </div>
+
+            <!-- Switch activo -->
+            <div class="form-switch-box">
+                <div class="form-switch-toggle">
+                    <input asp-for="Input.Activo" type="checkbox" class="form-switch-input" id="switchActivo" />
+                    <label for="switchActivo" class="form-switch-track"></label>
+                </div>
+                <div>
+                    <div class="form-switch-label">
+                        <i class="bi bi-building-check"></i> Área activa
+                    </div>
+                    <div class="form-switch-desc">
+                        Si está desactivada, el área no aparecerá en la plataforma ni en los dashboards.
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-footer">
+                <a href="/Admin/Areas" class="btn-form-cancel">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </a>
+                <button type="submit" class="btn-form-submit btn-form-submit--admin">
+                    <i class="bi bi-floppy-fill"></i> Guardar cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

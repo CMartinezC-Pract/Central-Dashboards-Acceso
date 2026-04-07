@@ -1,0 +1,170 @@
+@* Partial: _ComentariosPanel.cshtml *@
+@using CentralDashboards.Models.Dtos
+@model CentralDashboards.Pages.Shared.ComentariosPanelModel
+
+<div class="notas-panel" id="panelComentarios">
+
+    <!-- HEADER -->
+    <div class="notas-header">
+        <div class="notas-header-title">
+            <i class="bi bi-chat-dots-fill"></i> Notas de trabajo
+        </div>
+        <span class="notas-header-count" id="contadorActividades">
+            @Model.Comentarios.Count actividades
+        </span>
+    </div>
+
+    <!-- LISTA -->
+    <div class="notas-lista" id="comentariosLista">
+        @if (!Model.Comentarios.Any())
+        {
+            <div class="notas-empty" id="sinNotas">
+                <i class="bi bi-chat-square-dots"></i>
+                <p>Aún no hay notas en este ticket.</p>
+            </div>
+        }
+        @foreach (var c in Model.Comentarios)
+        {
+            var esAdmin = c.EsRespuestaAdmin;
+            var iniciales = c.Autor.Length >= 2 ? c.Autor.Substring(0, 2).ToUpper() : c.Autor.ToUpper();
+            <div class="nota-item">
+                <div class="nota-avatar @(esAdmin ? "nota-avatar--admin" : "nota-avatar--user")">
+                    @iniciales
+                </div>
+                <div class="nota-bubble @(esAdmin ? "nota-bubble--admin" : "nota-bubble--user")">
+                    <div class="nota-bubble-top">
+                        <span class="nota-autor">@c.Autor</span>
+                        @if (esAdmin)
+                        {
+                            <span class="nota-badge-admin">
+                                <i class="bi bi-shield-check-fill me-1"></i>Administrador
+                            </span>
+                        }
+                        <span class="nota-fecha">@c.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</span>
+                    </div>
+                    <p class="nota-mensaje">@c.Mensaje</p>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- FOOTER -->
+    <div class="notas-footer">
+        <label class="notas-footer-label">Agregar nota</label>
+        <textarea id="nuevoComentario" class="notas-textarea"
+                  placeholder="Escribe tu nota o comentario aquí..."></textarea>
+        <div class="notas-footer-actions">
+            <span class="notas-contador" id="contadorChars">0 / 2000</span>
+            <button class="notas-btn-enviar" id="btnEnviarComentario"
+                    data-tipo="@Model.TipoRegistro"
+                    data-registro="@Model.RegistroId">
+                <i class="bi bi-send-fill"></i> Agregar nota
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Template JS -->
+<template id="tplComentario">
+    <div class="nota-item">
+        <div class="nota-avatar nota-avatar--user"></div>
+        <div class="nota-bubble nota-bubble--user">
+            <div class="nota-bubble-top">
+                <span class="nota-autor autor"></span>
+                <span class="nota-badge-admin badge-admin" style="display:none;">
+                    <i class="bi bi-shield-check-fill me-1"></i>Administrador
+                </span>
+                <span class="nota-fecha fecha"></span>
+            </div>
+            <p class="nota-mensaje mensaje"></p>
+        </div>
+    </div>
+</template>
+
+<script>
+    (function () {
+        const btnEnviar    = document.getElementById('btnEnviarComentario');
+        const tipoRegistro = btnEnviar.dataset.tipo;
+        const registroId   = parseInt(btnEnviar.dataset.registro);
+        const textarea     = document.getElementById('nuevoComentario');
+        const lista        = document.getElementById('comentariosLista');
+        const contador     = document.getElementById('contadorChars');
+
+        textarea.addEventListener('input', () => {
+            contador.textContent = `${textarea.value.length} / 2000`;
+        });
+
+        btnEnviar.addEventListener('click', async () => {
+            const mensaje = textarea.value.trim();
+            if (!mensaje) { textarea.focus(); return; }
+            if (mensaje.length > 2000) { alert('Máximo 2000 caracteres.'); return; }
+
+            btnEnviar.disabled = true;
+            btnEnviar.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Enviando...';
+
+            try {
+                const resp = await fetch('?handler=AgregarComentario', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? ''
+                    },
+                    body: JSON.stringify({ tipoRegistro, registroId, mensaje })
+                });
+
+                const data = await resp.json();
+
+                if (data.success) {
+                    agregarComentarioAlDOM(data.comentario);
+                    textarea.value = '';
+                    contador.textContent = '0 / 2000';
+                    document.getElementById('sinNotas')?.remove();
+                    lista.scrollTop = lista.scrollHeight;
+
+                    const badge = document.getElementById('contadorActividades');
+                    if (badge) {
+                        const n = parseInt(badge.textContent) + 1;
+                        badge.textContent = `${n} actividades`;
+                    }
+                } else {
+                    alert(data.error ?? 'Error al guardar la nota.');
+                }
+            } catch (e) {
+                alert('Error de conexión: ' + e.message);
+            } finally {
+                btnEnviar.disabled = false;
+                btnEnviar.innerHTML = '<i class="bi bi-send-fill"></i> Agregar nota';
+            }
+        });
+
+        function agregarComentarioAlDOM(c) {
+            const tpl   = document.getElementById('tplComentario');
+            const clone = tpl.content.cloneNode(true);
+
+            const avatar  = clone.querySelector('.nota-avatar');
+            const bubble  = clone.querySelector('.nota-bubble');
+            const badgeAd = clone.querySelector('.badge-admin');
+
+            const iniciales = c.autor.split(' ').map(p => p[0]).join('').substring(0, 2).toUpperCase();
+            avatar.textContent = iniciales;
+
+            if (c.esRespuestaAdmin) {
+                avatar.classList.replace('nota-avatar--user', 'nota-avatar--admin');
+                bubble.classList.replace('nota-bubble--user', 'nota-bubble--admin');
+                if (badgeAd) badgeAd.style.display = 'inline-flex';
+            }
+
+            clone.querySelector('.autor').textContent   = c.autor;
+            clone.querySelector('.fecha').textContent   = formatFecha(c.fechaCreacion);
+            clone.querySelector('.mensaje').textContent = c.mensaje;
+
+            lista.appendChild(clone);
+        }
+
+        function formatFecha(iso) {
+            const d = new Date(iso);
+            return d.toLocaleDateString('es-MX') + ' ' +
+                   d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+        }
+    })();
+</script>

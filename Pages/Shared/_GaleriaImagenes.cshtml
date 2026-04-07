@@ -1,0 +1,165 @@
+@* Pages/Shared/_GaleriaImagenes.cshtml
+   Uso:
+     @await Html.PartialAsync("_GaleriaImagenes", Model.Imagenes)
+*@
+@model List<CentralDashboards.Models.Dtos.ImagenTicketDto>
+
+@if (Model != null && Model.Count > 0)
+{
+<style>
+    /* ── GALERÍA ── */
+    .galeria-card {
+        background: #fff;
+        border: 1px solid var(--border, #d4ead9);
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 4px 16px rgba(0,0,0,.05);
+        margin-bottom: 1.25rem;
+    }
+    .galeria-header {
+        background: linear-gradient(135deg, var(--v1, #3c8c58), var(--v2, #62c186));
+        padding: .9rem 1.2rem;
+        font-size: .72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.1px;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+    }
+    .galeria-body { padding: 1.1rem 1.2rem; }
+    .galeria-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: .75rem;
+    }
+    .galeria-item {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        aspect-ratio: 1;
+        background: #f0f4f0;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0,0,0,.08);
+        transition: transform .15s, box-shadow .15s;
+    }
+    .galeria-item:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,.15); }
+    .galeria-item img   { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .galeria-item .gi-overlay {
+        position: absolute; inset: 0;
+        background: rgba(0,0,0,.45);
+        display: flex; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity .15s;
+        color: #fff; font-size: 1.3rem;
+    }
+    .galeria-item:hover .gi-overlay { opacity: 1; }
+
+    /* ── LIGHTBOX ── */
+    .lightbox-backdrop {
+        display: none;
+        position: fixed; inset: 0; z-index: 9999;
+        background: rgba(0,0,0,.88);
+        align-items: center; justify-content: center;
+        flex-direction: column;
+        gap: .75rem;
+    }
+    .lightbox-backdrop.open { display: flex; }
+    .lightbox-backdrop img {
+        max-width: 92vw; max-height: 82vh;
+        border-radius: 12px;
+        box-shadow: 0 8px 40px rgba(0,0,0,.6);
+        object-fit: contain;
+    }
+    .lightbox-meta {
+        color: rgba(255,255,255,.7); font-size: .78rem; text-align: center;
+    }
+    .lightbox-nav {
+        display: flex; gap: 1rem; align-items: center;
+    }
+    .lb-btn {
+        background: rgba(255,255,255,.12);
+        border: 1px solid rgba(255,255,255,.25);
+        color: #fff; border-radius: 9px;
+        padding: .4rem .9rem; cursor: pointer;
+        font-size: .82rem; font-weight: 700;
+        transition: background .15s;
+    }
+    .lb-btn:hover   { background: rgba(255,255,255,.25); }
+    .lb-btn.lb-close { background: rgba(220,53,69,.5); border-color: rgba(220,53,69,.6); }
+    .lb-btn.lb-close:hover { background: rgba(220,53,69,.8); }
+    .lb-counter { color: rgba(255,255,255,.6); font-size: .78rem; min-width: 50px; text-align: center; }
+</style>
+
+<div class="galeria-card">
+    <div class="galeria-header">
+        <i class="bi bi-images"></i>
+        Imágenes adjuntas
+        <span style="margin-left:.3rem; background:rgba(255,255,255,.2); padding:.1rem .5rem; border-radius:10px;">
+            @Model.Count
+        </span>
+    </div>
+    <div class="galeria-body">
+        <div class="galeria-grid" id="galeriaGrid">
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var img = Model[i];
+                <div class="galeria-item" onclick="abrirLightbox(@i)" title="@img.NombreArchivo">
+                    <img src="@img.RutaRelativa" alt="@img.NombreArchivo" loading="lazy" />
+                    <div class="gi-overlay"><i class="bi bi-zoom-in"></i></div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox-backdrop" id="lightboxBackdrop" onclick="cerrarLightboxFondo(event)">
+    <div class="lightbox-nav">
+        <button class="lb-btn" onclick="navLightbox(-1)"><i class="bi bi-chevron-left"></i></button>
+        <span class="lb-counter" id="lbCounter"></span>
+        <button class="lb-btn" onclick="navLightbox(1)"><i class="bi bi-chevron-right"></i></button>
+        <button class="lb-btn lb-close" onclick="cerrarLightbox()"><i class="bi bi-x-lg"></i></button>
+    </div>
+    <img id="lightboxImg" src="" alt="" />
+    <div class="lightbox-meta" id="lightboxMeta"></div>
+</div>
+
+<script>
+(function(){
+    const imagenes = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+        Model.Select(i => new { src = i.RutaRelativa, nombre = i.NombreArchivo }).ToList()
+    ));
+    let idx = 0;
+
+    window.abrirLightbox = function(i) {
+        idx = i;
+        mostrar();
+        document.getElementById('lightboxBackdrop').classList.add('open');
+        document.addEventListener('keydown', teclado);
+    };
+    window.cerrarLightbox = function() {
+        document.getElementById('lightboxBackdrop').classList.remove('open');
+        document.removeEventListener('keydown', teclado);
+    };
+    window.cerrarLightboxFondo = function(e) {
+        if (e.target === document.getElementById('lightboxBackdrop')) cerrarLightbox();
+    };
+    window.navLightbox = function(dir) {
+        idx = (idx + dir + imagenes.length) % imagenes.length;
+        mostrar();
+    };
+    function mostrar() {
+        document.getElementById('lightboxImg').src     = imagenes[idx].src;
+        document.getElementById('lightboxImg').alt     = imagenes[idx].nombre;
+        document.getElementById('lightboxMeta').textContent = imagenes[idx].nombre;
+        document.getElementById('lbCounter').textContent    = `${idx+1} / ${imagenes.length}`;
+    }
+    function teclado(e) {
+        if (e.key === 'ArrowLeft')  navLightbox(-1);
+        if (e.key === 'ArrowRight') navLightbox(1);
+        if (e.key === 'Escape')     cerrarLightbox();
+    }
+})();
+</script>
+}

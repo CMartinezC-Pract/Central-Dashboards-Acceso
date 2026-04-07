@@ -1,0 +1,75 @@
+@page
+@model CentralDashboards.Pages.Admin.Areas.IndexModel
+@{
+    ViewData["Title"] = "Áreas";
+}
+
+<!-- HEADER -->
+<div class="page-header">
+    <div class="page-header-left">
+        <div class="module-icon admin"><i class="bi bi-building-fill"></i></div>
+        <div>
+            <h2 class="page-title">Áreas</h2>
+            <p class="page-sub">Secciones organizacionales que agrupan los dashboards</p>
+        </div>
+    </div>
+    <a href="/Admin/Areas/Create" class="btn-primary-action">
+        <i class="bi bi-plus-lg"></i> Nueva área
+    </a>
+</div>
+
+<!-- GRID -->
+@if (!Model.Areas.Any())
+{
+    <div class="empty-state">
+        <i class="bi bi-building"></i>
+        <p>No hay áreas registradas aún.</p>
+    </div>
+}
+else
+{
+    <div class="admin-card-grid">
+        @foreach (var a in Model.Areas)
+        {
+            <div class="admin-entity-card @(!a.Activo ? "admin-entity-card--inactive" : "")">
+                <div class="admin-entity-body">
+                    <div class="admin-entity-name-row">
+                        <span class="admin-entity-name">@a.NombreArea</span>
+                        <span class="badge-pill @(a.Activo ? "badge-activo" : "badge-inactivo")">
+                            @(a.Activo ? "Activa" : "Inactiva")
+                        </span>
+                    </div>
+                </div>
+                <div class="admin-entity-footer">
+                    <a href="/Admin/Areas/Edit?id=@a.AreaID" class="btn-tbl btn-tbl-edit">
+                        <i class="bi bi-pencil-fill"></i> Editar
+                    </a>
+                    @if (a.Activo)
+                    {
+                        <form method="post" action="?handler=Desactivar" style="display:inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@a.AreaID" />
+                            <button type="button" class="btn-tbl btn-tbl-del"
+                                    onclick="cdcConfirmSubmit(event,this,'@a.NombreArea')"
+                                    title="Desactivar">
+                                <i class="bi bi-eye-slash-fill"></i>
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form method="post" action="?handler=Activar" style="display:inline">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@a.AreaID" />
+                            <button type="button" class="btn-tbl btn-tbl-edit"
+                                    onclick="cdcConfirmActivarSubmit(event,this,'@a.NombreArea')"
+                                    title="Activar">
+                                <i class="bi bi-eye-fill"></i>
+                            </button>
+                        </form>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}

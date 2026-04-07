@@ -1,0 +1,55 @@
+@page
+@model CentralDashboards.Pages.Admin.Areas.CreateModel
+@{
+    ViewData["Title"] = "Nueva Área";
+}
+
+<!-- HEADER -->
+<div class="form-page-header form-page-header--admin">
+    <a href="/Admin/Areas" class="btn-back-sq btn-back-sq--admin">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h2 class="form-page-title">Nueva Área</h2>
+        <p class="form-page-sub">Crea una nueva sección organizacional</p>
+    </div>
+</div>
+
+<!-- CARD -->
+<div class="form-card form-card--admin">
+    <div class="form-card-header">
+        <div class="form-card-ico"><i class="bi bi-building-fill"></i></div>
+        <div>
+            <h5 class="form-card-title">Registrar Área</h5>
+            <p class="form-card-sub">Agrupa dashboards bajo una misma unidad de negocio</p>
+        </div>
+    </div>
+
+    <div class="form-card-body">
+        <form method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="form-field">
+                <label asp-for="Input.NombreArea" class="form-field-label">
+                    Nombre del área <span class="form-req">*</span>
+                </label>
+                <input asp-for="Input.NombreArea" class="form-field-control"
+                       placeholder="Ej: Recursos Humanos, Finanzas..." />
+                <span asp-validation-for="Input.NombreArea" class="form-field-error"></span>
+            </div>
+
+            <div class="form-footer">
+                <a href="/Admin/Areas" class="btn-form-cancel">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </a>
+                <button type="submit" class="btn-form-submit btn-form-submit--admin">
+                    <i class="bi bi-building-fill"></i> Crear área
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

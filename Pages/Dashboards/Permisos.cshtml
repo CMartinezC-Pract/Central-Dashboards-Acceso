@@ -1,0 +1,233 @@
+@page
+@model CentralDashboards.Pages.Dashboards.PermisosModel
+@{
+    ViewData["Title"] = $"Permisos — {Model.NombreDashboard}";
+}
+
+<!-- HEADER -->
+<div class="form-page-header form-page-header--dash">
+    <a href="/Dashboards" class="btn-back-sq btn-back-sq--dash">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h2 class="form-page-title">
+            <i class="bi bi-shield-lock-fill ico-priv me-1"></i> Permisos de acceso
+        </h2>
+        <p class="form-page-sub">
+            Dashboard privado: <strong>@Model.NombreDashboard</strong>
+            <span class="chip-folio-dash ms-1">@Model.Folio</span>
+        </p>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+<div class="perms-layout">
+
+    <!-- PANEL OTORGAR -->
+    <div class="panel-otorgar">
+        <div class="panel-header panel-header--green">
+            <i class="bi bi-person-plus-fill"></i> Otorgar acceso
+        </div>
+        <div class="panel-body">
+            <p class="panel-hint">
+                Busca al usuario por nombre o correo y otórgale acceso a este dashboard.
+            </p>
+
+            <label class="form-field-label">Nombre o correo del usuario</label>
+            <div class="search-row">
+                <input type="text" id="buscarCorreo" class="form-field-control"
+                       placeholder="Ej: Juan García o juan@empresa.com"
+                       onkeydown="if(event.key==='Enter') document.getElementById('btnBuscar').click()" />
+                <button class="btn-buscar" type="button" id="btnBuscar">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+
+            <!-- Encontrado -->
+            <div class="resultado-box resultado-box--found" id="resultadoFound">
+                <div class="r-ico"><i class="bi bi-person-check-fill"></i></div>
+                <div>
+                    <div class="r-name" id="rNombre"></div>
+                    <div class="r-mail" id="rCorreo"></div>
+                    <div id="rRol" style="margin-top:.3rem"></div>
+                </div>
+            </div>
+
+            <!-- Error -->
+            <div class="resultado-box resultado-box--error" id="resultadoError">
+                <div class="r-ico"><i class="bi bi-person-x-fill"></i></div>
+                <div class="r-err" id="rError"></div>
+            </div>
+
+            <input type="hidden" id="usuarioIdSeleccionado" value="" />
+
+            <button class="btn-otorgar" id="btnOtorgar" style="display:none">
+                <i class="bi bi-person-check-fill"></i> Otorgar acceso
+            </button>
+        </div>
+    </div>
+
+    <!-- PANEL USUARIOS CON ACCESO -->
+    <div class="panel-usuarios">
+        <div class="panel-usuarios-header">
+            <div class="title"><i class="bi bi-people-fill"></i> Usuarios con acceso</div>
+            <span class="contador-badge" id="contadorPermisos">@Model.Permisos.Count</span>
+        </div>
+
+        <div class="cd-table-scroll">
+            <table class="cd-table" id="tablaPermisos">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Otorgado por</th>
+                        <th>Fecha</th>
+                        <th style="width:44px"></th>
+                    </tr>
+                </thead>
+                <tbody id="cuerpoTabla">
+                    @if (!Model.Permisos.Any())
+                    {
+                        <tr id="filaVacia">
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <i class="bi bi-person-x"></i>
+                                    <p>Ningún usuario tiene acceso aún</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var p in Model.Permisos)
+                    {
+                        var esAdminRol = (p.NombreRol ?? "").ToLower().Contains("admin");
+                        var iniciales = p.Nombre.Split(' ').Where(x => x.Length > 0).Take(2).Aggregate("", (a, x) => a + x[0]).ToUpper();
+                        <tr id="fila-@p.UsuarioID">
+                            <td>
+                                <div class="td-usuario">
+                                    <div class="avatar">@iniciales</div>
+                                    <span class="cd-table-name">@p.Nombre</span>
+                                </div>
+                            </td>
+                            <td><span class="td-meta">@p.Correo</span></td>
+                            <td>
+                                <span class="rol-badge @(esAdminRol ? "rol-badge--admin" : "rol-badge--user")">
+                                    <i class="bi bi-@(esAdminRol ? "shield-fill" : "person-fill")"></i>
+                                    @p.NombreRol
+                                </span>
+                            </td>
+                            <td><span class="td-meta">@p.OtorgadoPor</span></td>
+                            <td><span class="td-meta" style="font-family:var(--font-mono);font-size:.72rem">@p.FechaOtorgado.ToString("dd/MM/yy")</span></td>
+                            <td>
+                                <button class="btn-revocar"
+                                        onclick="revocarPermiso(@p.UsuarioID, '@p.Nombre')"
+                                        title="Revocar acceso">
+                                    <i class="bi bi-person-dash-fill"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const dashboardId = @Model.DashboardId;
+        const token = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+
+        function rolBadgeHtml(nombreRol) {
+            const esAdmin = (nombreRol ?? '').toLowerCase().includes('admin');
+            const cls = esAdmin ? 'rol-badge--admin' : 'rol-badge--user';
+            const ico = esAdmin ? 'shield-fill'      : 'person-fill';
+            return `<span class="rol-badge ${cls}"><i class="bi bi-${ico}"></i> ${nombreRol ?? ''}</span>`;
+        }
+
+        document.getElementById('btnBuscar').addEventListener('click', async () => {
+            const termino = document.getElementById('buscarCorreo').value.trim();
+            if (!termino) return;
+            const res  = await fetch(`?handler=BuscarUsuario&termino=${encodeURIComponent(termino)}`);
+            const data = await res.json();
+            const found = document.getElementById('resultadoFound');
+            const error = document.getElementById('resultadoError');
+            const btnOt = document.getElementById('btnOtorgar');
+            found.style.display = error.style.display = btnOt.style.display = 'none';
+            if (data.encontrado) {
+                document.getElementById('usuarioIdSeleccionado').value = data.usuarioId;
+                document.getElementById('rNombre').textContent         = data.nombre;
+                document.getElementById('rCorreo').textContent         = data.correo;
+                document.getElementById('rRol').innerHTML              = rolBadgeHtml(data.nombreRol);
+                found.style.display = 'flex';
+                btnOt.style.display = 'flex';
+            } else {
+                document.getElementById('rError').textContent = data.mensaje ?? 'Usuario no encontrado.';
+                error.style.display = 'flex';
+            }
+        });
+
+        document.getElementById('btnOtorgar').addEventListener('click', async () => {
+            const usuarioId = parseInt(document.getElementById('usuarioIdSeleccionado').value);
+            if (!usuarioId) return;
+            const res  = await fetch('?handler=OtorgarPermiso', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token() },
+                body: JSON.stringify({ dashboardId, usuarioId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                agregarFilaTabla(data.permiso);
+                document.getElementById('buscarCorreo').value           = '';
+                document.getElementById('resultadoFound').style.display = 'none';
+                document.getElementById('btnOtorgar').style.display     = 'none';
+                actualizarContador(1);
+                document.getElementById('filaVacia')?.remove();
+            } else {
+                alert(data.error ?? 'Error al otorgar permiso.');
+            }
+        });
+
+        async function revocarPermiso(usuarioId, nombre) {
+            const ok = await _cdShowConfirm(
+                'Revocar acceso',
+                `¿Revocar acceso de <strong>"${nombre}"</strong> a este dashboard?`,
+                'Revocar',
+                'var(--c-danger)'
+            );
+            if (!ok) return;
+            const res  = await fetch('?handler=RevocarPermiso', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': token() },
+                body: JSON.stringify({ dashboardId, usuarioId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById(`fila-${usuarioId}`)?.remove();
+                actualizarContador(-1);
+            } else {
+                alert(data.error ?? 'Error al revocar permiso.');
+            }
+        }
+
+        function agregarFilaTabla(p) {
+            const tbody    = document.getElementById('cuerpoTabla');
+            const iniciales = p.nombre.split(' ').filter(Boolean).slice(0,2).map(x=>x[0]).join('').toUpperCase();
+            tbody.insertAdjacentHTML('beforeend', `
+                <tr id="fila-${p.usuarioID}">
+                    <td><div class="td-usuario"><div class="avatar">${iniciales}</div><span class="cd-table-name">${p.nombre}</span></div></td>
+                    <td><span class="td-meta">${p.correo}</span></td>
+                    <td>${rolBadgeHtml(p.nombreRol)}</td>
+                    <td><span class="td-meta">${p.otorgadoPor}</span></td>
+                    <td><span class="td-meta">Hoy</span></td>
+                    <td><button class="btn-revocar" onclick="revocarPermiso(${p.usuarioID},'${p.nombre}')" title="Revocar acceso"><i class="bi bi-person-dash-fill"></i></button></td>
+                </tr>`);
+        }
+
+        function actualizarContador(delta) {
+            const badge = document.getElementById('contadorPermisos');
+            badge.textContent = parseInt(badge.textContent) + delta;
+        }
+    </script>
+}

@@ -1,0 +1,900 @@
+@page
+@model CentralDashboards.Pages.IndexModel
+@{
+    ViewData["Title"] = "Inicio";
+}
+
+@Html.AntiForgeryToken()
+
+@* ══ MODAL SOLICITAR ACCESO — siempre en DOM ══════════════════ *@
+<div class="modal fade" id="modalAcceso" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content vmodal-content">
+            <div class="vmodal-header vmodal-header--sol">
+                <h5 class="vmodal-title">
+                    <i class="bi bi-key-fill"></i> Solicitar Acceso
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="vmodal-body">
+                <div class="vmodal-dash-bar" id="accesoDashBar"></div>
+                <div id="accesoFormWrap">
+                    <input type="hidden" id="accesoDashID" value="" />
+                    <div class="vmodal-cols">
+                        <div class="vmodal-field">
+                            <label class="vmodal-label">Tipo de solicitud</label>
+                            <input type="text" class="vmodal-control" value="Solicitar acceso" disabled />
+                        </div>
+                        <div class="vmodal-field">
+                            <label class="vmodal-label">Prioridad</label>
+                            <select id="accesoPrioridad" class="vmodal-control">
+                                <option value="Baja">🟢 Baja</option>
+                                <option value="Media" selected>🟡 Media</option>
+                                <option value="Alta">🔴 Alta</option>
+                                <option value="Critica">⚫ Crítica</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="vmodal-field">
+                        <label class="vmodal-label">Título <span class="vmodal-req">*</span></label>
+                        <input type="text" id="accesoTitulo" class="vmodal-control"
+                               placeholder="Describe brevemente tu solicitud" maxlength="200" />
+                        <span class="vmodal-error" id="accesoErrTitulo">El título es obligatorio.</span>
+                    </div>
+                    <div class="vmodal-field">
+                        <label class="vmodal-label">Descripción <span class="vmodal-req">*</span></label>
+                        <textarea id="accesoDesc" class="vmodal-control"
+                                  placeholder="Describe con detalle tu solicitud..."></textarea>
+                        <span class="vmodal-error" id="accesoErrDesc">La descripción es obligatoria.</span>
+                    </div>
+                    <div class="vmodal-field">
+                        <label class="vmodal-label">
+                            Imágenes adjuntas
+                            <span class="vmodal-label-opt">(opcional, máx. 5)</span>
+                        </label>
+                        <div class="vmodal-dropzone" id="accesoDropZone"
+                             onclick="document.getElementById('accesoImagenes').click()">
+                            <i class="bi bi-cloud-upload"></i>
+                            Arrastra imágenes aquí o haz clic para seleccionar
+                        </div>
+                        <input type="file" id="accesoImagenes" accept="image/*" multiple style="display:none" />
+                        <div class="vmodal-previews" id="accesoPreviews"></div>
+                        <div class="vmodal-img-count" id="accesoCounter"></div>
+                    </div>
+                </div>
+                <div class="vmodal-success" id="accesoSuccess" style="display:none;">
+                    <div class="vmodal-success-icon vmodal-success-icon--warn">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <h5>¡Solicitud registrada!</h5>
+                    <p>Tu solicitud fue enviada correctamente.</p>
+                    <span class="vmodal-folio-result vmodal-folio-result--sol" id="accesoFolioGenerado"></span>
+                </div>
+            </div>
+            <div class="vmodal-footer" id="accesoFooter">
+                <button type="button" class="vmodal-btn-cancel" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </button>
+                <button type="button" class="vmodal-btn-submit vmodal-btn-submit--sol"
+                        id="btnEnviarAcceso" onclick="enviarAcceso()">
+                    <i class="bi bi-send-fill"></i> Registrar solicitud
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ══ MODAL NUEVA SOLICITUD — siempre en DOM ═══════════════════ *@
+<div class="modal fade" id="modalNuevaSol" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content vmodal-content">
+            <div class="vmodal-header vmodal-header--sol">
+                <h5 class="vmodal-title">
+                    <i class="bi bi-send-fill"></i> Nueva Solicitud
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="vmodal-body">
+                <div id="nuevaSolFormWrap">
+                    <div class="vmodal-cols">
+                        <div class="vmodal-field">
+                            <label class="vmodal-label">Tipo de solicitud</label>
+                            <select id="nuevaSolTipo" class="vmodal-control">
+                                <option value="5" selected>📋 Solicitud general</option>
+                                <option value="1">🔑 Acceso a dashboard</option>
+                                <option value="2">📊 Nuevo reporte</option>
+                                <option value="4">🐛 Reporte de problema</option>
+                            </select>
+                        </div>
+                        <div class="vmodal-field">
+                            <label class="vmodal-label">Prioridad</label>
+                            <select id="nuevaSolPrioridad" class="vmodal-control">
+                                <option value="Baja">🟢 Baja</option>
+                                <option value="Media" selected>🟡 Media</option>
+                                <option value="Alta">🔴 Alta</option>
+                                <option value="Critica">⚫ Crítica</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="vmodal-field">
+                        <label class="vmodal-label">Título <span class="vmodal-req">*</span></label>
+                        <input type="text" id="nuevaSolTitulo" class="vmodal-control"
+                               placeholder="Describe brevemente tu solicitud" maxlength="200" />
+                        <span class="vmodal-error" id="nuevaSolErrTitulo">El título es obligatorio.</span>
+                    </div>
+                    <div class="vmodal-field">
+                        <label class="vmodal-label">Descripción <span class="vmodal-req">*</span></label>
+                        <textarea id="nuevaSolDesc" class="vmodal-control" rows="4"
+                                  placeholder="Describe con detalle tu solicitud..."></textarea>
+                        <span class="vmodal-error" id="nuevaSolErrDesc">La descripción es obligatoria.</span>
+                    </div>
+                    <div class="vmodal-field">
+                        <label class="vmodal-label">
+                            Imágenes adjuntas
+                            <span class="vmodal-label-opt">(opcional, máx. 5)</span>
+                        </label>
+                        <div class="vmodal-dropzone" id="nuevaSolDropZone"
+                             onclick="document.getElementById('nuevaSolImagenes').click()">
+                            <i class="bi bi-cloud-upload"></i>
+                            Arrastra imágenes aquí o haz clic para seleccionar
+                        </div>
+                        <input type="file" id="nuevaSolImagenes" accept="image/*" multiple style="display:none" />
+                        <div class="vmodal-previews" id="nuevaSolPreviews"></div>
+                        <div class="vmodal-img-count" id="nuevaSolCounter"></div>
+                    </div>
+                </div>
+                <div class="vmodal-success" id="nuevaSolSuccess" style="display:none;">
+                    <div class="vmodal-success-icon vmodal-success-icon--warn">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <h5>¡Solicitud registrada!</h5>
+                    <p>Tu solicitud fue enviada correctamente.</p>
+                    <span class="vmodal-folio-result vmodal-folio-result--sol" id="nuevaSolFolio"></span>
+                </div>
+            </div>
+            <div class="vmodal-footer" id="nuevaSolFooter">
+                <button type="button" class="vmodal-btn-cancel" data-bs-dismiss="modal">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </button>
+                <button type="button" class="vmodal-btn-submit vmodal-btn-submit--sol"
+                        id="btnEnviarNuevaSol" onclick="enviarNuevaSol()">
+                    <i class="bi bi-send-fill"></i> Registrar solicitud
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ══ VISTA 2 — PÁGINA PRINCIPAL ══════════════════════════════ *@
+@if (!Model.UnidadId.HasValue)
+{
+    @* ── 1. BIENVENIDA + SOLICITUD ── *@
+    <div class="v2-top-row">
+
+        <div class="v2-welcome">
+            <p class="v2-welcome-tag">
+                <span class="v2-welcome-dot"></span>
+                Business Intelligence · Grupo Xcaret
+            </p>
+            <h1 class="v2-welcome-title">
+                Bienvenido
+            </h1>
+            <p class="v2-welcome-desc">
+                Este es el portal de Business Intelligence de Grupo Xcaret. Aquí puedes consultar, en un solo lugar, los principales dashboards e indicadores de Hoteles, Parques y Tours, Xailing, MDC, Satisfacción de Clientes y Talento.
+          <br />
+                Cada reporte está pensado para apoyar la toma de decisiones del día a día, con información actualizada proveniente de fuentes internas y externas. Navega por las unidades de negocio, explora los dashboards disponibles y solicita acceso a los que necesites.
+            </p>
+            <blockquote class="v2-welcome-quote">
+                <i class="bi bi-quote"></i>
+                No somos cierres contables — nuestro objetivo es que se tomen decisiones con base en información.
+            </blockquote>
+        </div>
+
+        <div class="v2-sol-card">
+            
+            <h2 class="v2-sol-title">¿Tienes alguna solicitud?</h2>
+            <p class="v2-sol-desc">
+                Si necesitas acceso a un dashboard, quieres solicitar un nuevo reporte
+                o tienes algún problema con la plataforma, puedes enviarnos un mensaje
+                directamente desde aquí y el equipo de BI lo atenderá a la brevedad.
+            </p>
+            <button type="button" class="v2-sol-btn" onclick="abrirNuevaSol()">
+                <i class="bi bi-send-fill"></i> Nueva Solicitud
+            </button>
+            <a asp-page="/Solicitudes/Create" class="v2-sol-link">
+                <i class="bi bi-box-arrow-up-right"></i> Formulario completo
+            </a>
+        </div>
+
+    </div>
+
+    @* ── 2. CARRUSEL NOTICIAS Y NOVEDADES ── *@
+    <div class="idx-carousel-section">
+        <div class="idx-carousel-hdr">
+            <i class="bi bi-megaphone-fill"></i>
+            <span>Noticias y Novedades</span>
+        </div>
+        <div class="idx-carousel-track-wrap">
+            <button type="button" class="idx-carousel-arrow idx-carousel-arrow--left" onclick="scrollCarousel(-1)">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <div class="idx-carousel-track" id="carouselTrack">
+
+                @if (!Model.Avisos.Any() && !Model.DashboardsRecientes.Any())
+                {
+                    <span style="font-size:.82rem;color:var(--c-ink-4);padding:.5rem .25rem;">
+                        Sin novedades por ahora.
+                    </span>
+                }
+
+                @foreach (var av in Model.Avisos)
+                {
+                    var iconoAviso = av.Tipo switch
+                    {
+                        "Nuevo" => "bi-stars",
+                        "Actualización" => "bi-arrow-repeat",
+                        "Mantenimiento" => "bi-tools",
+                        _ => "bi-info-circle-fill"
+                    };
+                    var claseAviso = av.Tipo switch
+                    {
+                        "Nuevo" => "carousel-chip--nuevo",
+                        "Actualización" => "carousel-chip--update",
+                        "Mantenimiento" => "carousel-chip--maint",
+                        _ => "carousel-chip--info"
+                    };
+                    <button type="button"
+                            class="carousel-chip @claseAviso"
+                            data-tipo="aviso"
+                            data-aviso-id="@av.Id">
+                        <i class="bi @iconoAviso carousel-chip-ico"></i>
+                        <span class="carousel-chip-tag">@av.Tipo</span>
+                        <span class="carousel-chip-txt">@av.Titulo</span>
+                        <span class="carousel-chip-fecha">@av.Fecha.ToString("dd MMM")</span>
+                        @if (av.TotalComentarios > 0)
+                        {
+                            <span class="carousel-chip-badge">
+                                <i class="bi bi-chat-dots"></i> @av.TotalComentarios
+                            </span>
+                        }
+                    </button>
+                }
+
+                @foreach (var db in Model.DashboardsRecientes)
+                {
+                    <button type="button"
+                            class="carousel-chip carousel-chip--dash"
+                            data-tipo="dashboard"
+                            data-dash-id="@db.DashboardID"
+                            data-dash-acceso="@db.TieneAcceso.ToString().ToLower()"
+                            data-dash-folio="@db.Folio"
+                            data-dash-nombre="@Html.Raw(db.Nombre.Replace("\"", "&quot;"))">
+                        <i class="bi bi-bar-chart-fill carousel-chip-ico"></i>
+                        <span class="carousel-chip-tag">Nuevo Dashboard</span>
+                        <span class="carousel-chip-txt">@db.Nombre</span>
+                        <span class="carousel-chip-fecha">@db.FechaPublicacion.ToString("dd MMM")</span>
+                    </button>
+                }
+
+            </div>
+            <button type="button" class="idx-carousel-arrow idx-carousel-arrow--right" onclick="scrollCarousel(1)">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+
+    @* ── 3. UNIDADES DE NEGOCIO ── *@
+    <div class="page-header">
+        <div>
+            <h4 class="page-header-title">Unidades de Negocio</h4>
+            <p class="page-header-sub">Selecciona una unidad para explorar sus dashboards</p>
+        </div>
+    </div>
+
+    <div class="areas-grid">
+        @foreach (var unidad in Model.Unidades)
+        {
+            <div class="area-card" onclick="window.location.href='/?UnidadId=@unidad.UnidadID'" style="cursor:pointer;">
+                <div class="area-card-img">
+                    @if (!string.IsNullOrEmpty(unidad.IconoURL))
+                    {
+                        <img src="@unidad.IconoURL" alt="@unidad.Nombre" />
+                    }
+                    else
+                    {
+                        <div class="area-card-placeholder"><i class="bi bi-building-fill"></i></div>
+                    }
+                </div>
+                <div class="area-card-body">
+                    <div class="area-card-name">@unidad.Nombre</div>
+                    @if (!string.IsNullOrEmpty(unidad.Descripcion))
+                    {
+                        <div class="area-card-desc">@unidad.Descripcion</div>
+                    }
+                    <div class="area-card-footer">
+                        <span class="area-card-link">Ver dashboards <i class="bi bi-arrow-right"></i></span>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+@* /VISTA 2 *@
+
+@* ══ VISTA 3 — LISTA DE DASHBOARDS POR UNIDAD ════════════════ *@
+@if (Model.UnidadId.HasValue)
+{
+    var unidadSel = Model.Unidades.FirstOrDefault(u => u.UnidadID == Model.UnidadId);
+
+    <div class="page-header">
+        <div>
+            <h4 class="page-header-title">@unidadSel?.Nombre</h4>
+            <p class="page-header-sub">@Model.Dashboards.Count dashboard(s) disponibles</p>
+        </div>
+        <div class="page-header-actions">
+            <a href="/" class="btn-back-txt"><i class="bi bi-arrow-left me-1"></i>Inicio</a>
+            <span class="badge-count">@Model.Dashboards.Count reportes</span>
+        </div>
+    </div>
+
+    <div class="search-wrap">
+        <i class="bi bi-search search-ico"></i>
+        <input type="text" id="buscador" class="search-inp"
+               placeholder="Buscar por folio o nombre..."
+               oninput="filtrarDashboards(this.value)" />
+    </div>
+
+    @if (!Model.Dashboards.Any())
+    {
+        <div class="empty-state">
+            <i class="bi bi-inbox"></i>
+            <p>No hay dashboards disponibles en esta unidad de negocio.</p>
+        </div>
+    }
+    else
+    {
+        <div class="dash-list" id="dashList">
+            @foreach (var d in Model.Dashboards)
+            {
+                <div class="dash-row @(!d.TieneAcceso ? "dash-row--locked" : "")"
+                     data-nombre="@d.Nombre.ToLower()"
+                     data-folio="@d.Folio.ToLower()">
+                    <div class="dash-row-img">
+                        @if (!string.IsNullOrEmpty(d.ImagenPrincipal))
+                        {
+                            <img src="@d.ImagenPrincipal" alt="@d.Nombre" />
+                        }
+                        else
+                        {
+                            <div class="dash-row-placeholder"><i class="bi bi-bar-chart-fill"></i></div>
+                        }
+                    </div>
+                    <div class="dash-row-info">
+                        <div class="dash-row-meta">
+                            <span class="chip-folio chip-folio-dash">@d.Folio</span>
+                            @if (d.EsPrivado)
+                            {
+                                <span class="badge-pill badge-privado"><i class="bi bi-shield-lock-fill"></i> Privado</span>
+                            }
+                            else
+                            {
+                                <span class="badge-pill badge-publico"><i class="bi bi-globe"></i> Público</span>
+                            }
+                        </div>
+                        <div class="dash-row-name">@d.Nombre</div>
+                        @if (!string.IsNullOrEmpty(d.Descripcion))
+                        {
+                            <div class="dash-row-desc">@d.Descripcion</div>
+                        }
+                    </div>
+                    <div class="dash-row-action">
+                        @if (d.TieneAcceso)
+                        {
+                            <a class="btn-ver-dash" href="/Dashboards/Ver?DashboardId=@d.DashboardID">
+                                <i class="bi bi-play-fill"></i> Ver Dashboard
+                            </a>
+                        }
+                        else if (d.EsPrivado)
+                        {
+                            @if (Model.DashboardsYaSolicitados.Contains(d.DashboardID))
+                            {
+                                <button type="button" class="btn-solicitar-acceso btn-solicitado" disabled>
+                                    <i class="bi bi-check-circle-fill"></i> Solicitado
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn-solicitar-acceso"
+                                        onclick="abrirModalAcceso('@d.DashboardID', '@d.Folio', '@Html.Raw(d.Nombre.Replace("'", "\\'"))')">
+                                    <i class="bi bi-key-fill"></i> Solicitar acceso
+                                </button>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}
+@* /VISTA 3 *@
+
+@* Datos de avisos para JS *@
+@if (!Model.UnidadId.HasValue)
+{
+    <script id="avisoDataScript" type="application/json">
+        [@Html.Raw(string.Join(",", Model.Avisos.Select(av =>
+                    $"{{\"id\":{av.Id},\"titulo\":{System.Text.Json.JsonSerializer.Serialize(av.Titulo)},\"contenido\":{System.Text.Json.JsonSerializer.Serialize(av.Contenido)},\"tipo\":{System.Text.Json.JsonSerializer.Serialize(av.Tipo)},\"fecha\":\"{av.Fecha:dd MMM yyyy}\"}}"
+            )))]
+    </script>
+}
+
+@* Modal aviso completo — siempre en DOM *@
+<div class="modal fade" id="modalAviso" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content vmodal-content">
+            <div class="vmodal-header vmodal-header--sol" id="modalAvisoHeader">
+                <h5 class="vmodal-title" id="modalAvisoTitulo"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="vmodal-body">
+                <div id="modalAvisoMeta" style="display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem;flex-wrap:wrap;"></div>
+                <div id="modalAvisoContenido"
+                     style="font-size:.88rem;color:var(--c-ink-2);line-height:1.7;white-space:pre-wrap;
+                background:color-mix(in srgb,var(--c-ink-1) 3%,transparent);
+                border-radius:var(--radius-md);padding:.9rem 1.1rem;margin-bottom:1rem;"></div>
+                <div class="aviso-reacciones" id="modalReac"></div>
+                <div class="aviso-comentarios-lista" id="modalComs"
+                     style="max-height:220px;overflow-y:auto;margin-top:.75rem;"></div>
+                <div class="aviso-comentar-wrap" style="margin-top:.75rem;">
+                    <textarea class="aviso-textarea" id="modalTxtCom"
+                              placeholder="Escribe un comentario..." maxlength="1000"></textarea>
+                    <div style="display:flex;justify-content:flex-end;margin-top:.4rem;">
+                        <button class="notas-btn-enviar" id="modalBtnCom" disabled>
+                            <i class="bi bi-send-fill"></i> Comentar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ── Datos de avisos ────────────────────────────────────────
+        var _avisoData = {};
+        (function () {
+            var el = document.getElementById('avisoDataScript');
+            if (!el) return;
+            try {
+                JSON.parse(el.textContent).forEach(function (a) { _avisoData[a.id] = a; });
+            } catch (e) { console.warn('avisoData parse error', e); }
+        })();
+
+        // ── Carrusel ───────────────────────────────────────────────
+        function scrollCarousel(dir) {
+            var track = document.getElementById('carouselTrack');
+            if (track) track.scrollBy({ left: dir * 320, behavior: 'smooth' });
+        }
+
+        (function autoCarousel() {
+            var track = document.getElementById('carouselTrack');
+            if (!track) return;
+            var timer = setInterval(function () {
+                var max = track.scrollWidth - track.clientWidth;
+                if (track.scrollLeft >= max - 2) {
+                    track.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    track.scrollBy({ left: 280, behavior: 'smooth' });
+                }
+            }, 5000);
+            track.addEventListener('mouseenter', function () { clearInterval(timer); });
+        })();
+
+        // ── Click en chips del carrusel ────────────────────────────
+        (function () {
+            var track = document.getElementById('carouselTrack');
+            if (!track) return;
+            track.addEventListener('click', function (e) {
+                var chip = e.target.closest('.carousel-chip');
+                if (!chip) return;
+                if (chip.dataset.tipo === 'aviso') {
+                    abrirModalAviso(parseInt(chip.dataset.avisoId));
+                } else if (chip.dataset.tipo === 'dashboard') {
+                    var tieneAcceso = chip.dataset.dashAcceso === 'true';
+                    if (tieneAcceso) {
+                        window.location.href = '/Dashboards/Ver?DashboardId=' + chip.dataset.dashId;
+                    } else {
+                        abrirModalAcceso(chip.dataset.dashId, chip.dataset.dashFolio, chip.dataset.dashNombre);
+                    }
+                }
+            });
+        })();
+
+        // ── Modal Aviso completo ───────────────────────────────────
+        var _avisoActual = null;
+
+        function abrirModalAviso(id) {
+            var av = _avisoData[id];
+            if (!av) return;
+            _avisoActual = id;
+
+            var header = document.getElementById('modalAvisoHeader');
+            header.className = 'vmodal-header';
+            if      (av.tipo === 'Nuevo')         header.classList.add('vmodal-header--nuevo');
+            else if (av.tipo === 'Actualización') header.classList.add('vmodal-header--update');
+            else if (av.tipo === 'Mantenimiento') header.classList.add('vmodal-header--maint');
+            else                                  header.classList.add('vmodal-header--sol');
+
+            document.getElementById('modalAvisoTitulo').textContent    = av.titulo;
+            document.getElementById('modalAvisoContenido').textContent = av.contenido;
+            document.getElementById('modalAvisoMeta').innerHTML =
+                '<span class="home-aviso-tag">' + escHtml(av.tipo) + '</span>' +
+                '<span class="home-aviso-date" style="margin-left:.35rem">' + av.fecha + '</span>';
+
+            document.getElementById('modalReac').innerHTML =
+                '<button class="aviso-reac-btn" data-tipo="like">👍 <span class="aviso-reac-count">0</span></button>' +
+                '<button class="aviso-reac-btn" data-tipo="sorpresa">😮 <span class="aviso-reac-count">0</span></button>' +
+                '<button class="aviso-reac-btn" data-tipo="aplauso">👏 <span class="aviso-reac-count">0</span></button>';
+            document.getElementById('modalReac').querySelectorAll('.aviso-reac-btn').forEach(function (btn) {
+                btn.addEventListener('click', function () { reaccionarModal(id, btn.dataset.tipo, btn); });
+            });
+
+            document.getElementById('modalTxtCom').value    = '';
+            document.getElementById('modalBtnCom').disabled = true;
+            document.getElementById('modalComs').innerHTML  = '';
+
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalAviso')).show();
+            cargarAvisoModal(id);
+        }
+
+        function cargarAvisoModal(id) {
+            fetch('/api/avisos/' + id + '/datos')
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    renderReaccionesModal(id, data.reacciones);
+                    renderComentariosModal(data.comentarios);
+                })
+                .catch(function (e) { console.warn('cargarAvisoModal error', e); });
+        }
+
+        function renderReaccionesModal(id, reacciones) {
+            document.getElementById('modalReac').querySelectorAll('.aviso-reac-btn').forEach(function (btn) {
+                var tipo      = btn.dataset.tipo;
+                var reac      = reacciones.find(function (r) { return r.tipo === tipo; });
+                var total     = reac ? reac.total : 0;
+                var activo    = reac ? reac.yoReaccione === 1 : false;
+                var hayActiva = reacciones.some(function (r) { return r.yoReaccione === 1; });
+                btn.querySelector('.aviso-reac-count').textContent = total;
+                btn.classList.toggle('active', activo);
+                btn.style.opacity = (hayActiva && !activo) ? '0.45' : '1';
+            });
+        }
+
+        function renderComentariosModal(comentarios) {
+            var lista = document.getElementById('modalComs');
+            lista.innerHTML = '';
+            if (!comentarios || comentarios.length === 0) {
+                lista.innerHTML = '<p style="font-size:.78rem;color:var(--c-ink-4);text-align:center;padding:.5rem 0;">Sé el primero en comentar.</p>';
+                return;
+            }
+            comentarios.forEach(function (c) {
+                var esAdmin   = c.rolNombre === 'Administrador';
+                var iniciales = c.autorNombre.split(' ').filter(Boolean).slice(0, 2)
+                                 .map(function (p) { return p[0]; }).join('').toUpperCase();
+                lista.insertAdjacentHTML('beforeend',
+                    '<div class="aviso-com-item">' +
+                    '<div class="aviso-com-avatar ' + (esAdmin ? 'aviso-com-avatar--admin' : '') + '">' + iniciales + '</div>' +
+                    '<div class="aviso-com-bubble ' + (esAdmin ? 'aviso-com-bubble--admin' : '') + '">' +
+                    '<div class="aviso-com-top">' +
+                    '<span class="aviso-com-autor">' + escHtml(c.autorNombre) + '</span>' +
+                    (esAdmin ? '<span class="aviso-com-rol">Admin</span>' : '') +
+                    '<span class="aviso-com-fecha">' + formatFecha(c.fechaComentario) + '</span>' +
+                    '</div><p class="aviso-com-msg">' + escHtml(c.mensaje) + '</p></div></div>');
+            });
+            lista.scrollTop = lista.scrollHeight;
+        }
+
+        function reaccionarModal(id, tipo, btn) {
+            btn.disabled = true;
+            fetch('/api/avisos/' + id + '/reaccion', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getAntiForgery() },
+                body: JSON.stringify({ tipo: tipo })
+            })
+            .then(function (r) { return r.json(); })
+            .then(function (data) { renderReaccionesModal(id, data); btn.disabled = false; })
+            .catch(function () { btn.disabled = false; });
+        }
+
+        document.getElementById('modalTxtCom').addEventListener('input', function () {
+            document.getElementById('modalBtnCom').disabled = this.value.trim().length === 0;
+        });
+        document.getElementById('modalBtnCom').addEventListener('click', function () {
+            var id  = _avisoActual;
+            var txt = document.getElementById('modalTxtCom');
+            var msg = txt.value.trim();
+            if (!msg || !id) return;
+            this.disabled = true;
+            fetch('/api/avisos/' + id + '/comentario', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'RequestVerificationToken': getAntiForgery() },
+                body: JSON.stringify({ mensaje: msg })
+            })
+            .then(function (r) { return r.json(); })
+            .then(function () {
+                txt.value = '';
+                document.getElementById('modalBtnCom').disabled = true;
+                cargarAvisoModal(id);
+                var chip = document.querySelector('.carousel-chip[data-aviso-id="' + id + '"]');
+                if (chip) {
+                    var badge = chip.querySelector('.carousel-chip-badge');
+                    if (badge) {
+                        var n = parseInt(badge.textContent.replace(/\D/g, '')) || 0;
+                        badge.innerHTML = '<i class="bi bi-chat-dots"></i> ' + (n + 1);
+                    } else {
+                        var nb = document.createElement('span');
+                        nb.className = 'carousel-chip-badge';
+                        nb.innerHTML = '<i class="bi bi-chat-dots"></i> 1';
+                        chip.appendChild(nb);
+                    }
+                }
+            })
+            .catch(function () { document.getElementById('modalBtnCom').disabled = false; });
+        });
+
+        // ── Estilos headers modal aviso ────────────────────────────
+        (function () {
+            if (document.getElementById('avisoHeaderStyles')) return;
+            var s = document.createElement('style');
+            s.id = 'avisoHeaderStyles';
+            s.textContent =
+                '.vmodal-header--nuevo{background:linear-gradient(135deg,#92400e,#d97706)!important;}' +
+                '.vmodal-header--update{background:linear-gradient(135deg,#166534,#16a34a)!important;}' +
+                '.vmodal-header--maint{background:linear-gradient(135deg,#7f1d1d,#ef4444)!important;}';
+            document.head.appendChild(s);
+        })();
+
+        // ── Filtro dashboards (Vista 3) ────────────────────────────
+        function filtrarDashboards(q) {
+            q = q.toLowerCase().trim();
+            document.querySelectorAll('#dashList .dash-row').forEach(function (row) {
+                var nombre = row.dataset.nombre || '';
+                var folio  = row.dataset.folio  || '';
+                row.style.display = (!q || nombre.includes(q) || folio.includes(q)) ? '' : 'none';
+            });
+        }
+
+        // ── Modal Nueva Solicitud ──────────────────────────────────
+        var nuevaSolFiles = [];
+
+        function abrirNuevaSol() {
+            document.getElementById('nuevaSolTitulo').value = '';
+            document.getElementById('nuevaSolDesc').value   = '';
+            document.getElementById('nuevaSolFormWrap').style.display = '';
+            document.getElementById('nuevaSolSuccess').style.display  = 'none';
+            document.getElementById('nuevaSolFooter').style.display   = '';
+            document.querySelectorAll('#nuevaSolFormWrap .vmodal-error')
+                .forEach(function(e){ e.classList.remove('show'); });
+            nuevaSolFiles.length = 0;
+            renderNuevaSolPreviews();
+            bootstrap.Modal.getOrCreateInstance(document.getElementById('modalNuevaSol')).show();
+        }
+
+        (function setupNuevaSolDrop() {
+            var dropEl  = document.getElementById('nuevaSolDropZone');
+            var inputEl = document.getElementById('nuevaSolImagenes');
+            if (!dropEl || !inputEl) return;
+            dropEl.addEventListener('dragover',  function(e){ e.preventDefault(); dropEl.classList.add('drag-over'); });
+            dropEl.addEventListener('dragleave', function(){ dropEl.classList.remove('drag-over'); });
+            dropEl.addEventListener('drop', function(e){
+                e.preventDefault(); dropEl.classList.remove('drag-over');
+                addNuevaSolFiles(Array.from(e.dataTransfer.files));
+            });
+            inputEl.addEventListener('change', function(){
+                addNuevaSolFiles(Array.from(inputEl.files)); inputEl.value = '';
+            });
+        })();
+
+        function addNuevaSolFiles(files) {
+            files.forEach(function(f){
+                if (nuevaSolFiles.length < 5 && f.type.startsWith('image/')) nuevaSolFiles.push(f);
+            });
+            renderNuevaSolPreviews();
+        }
+        function renderNuevaSolPreviews() {
+            var wrap = document.getElementById('nuevaSolPreviews');
+            if (!wrap) return;
+            wrap.innerHTML = '';
+            nuevaSolFiles.forEach(function(f, i){
+                var url  = URL.createObjectURL(f);
+                var item = document.createElement('div');
+                item.className = 'vmodal-preview-item';
+                item.innerHTML = '<img src="' + url + '"><button class="vmodal-remove-img" onclick="nuevaSolFiles.splice(' + i + ',1);renderNuevaSolPreviews()"><i class="bi bi-x"></i></button>';
+                wrap.appendChild(item);
+            });
+            var cnt = document.getElementById('nuevaSolCounter');
+            if (cnt) cnt.textContent = nuevaSolFiles.length > 0 ? nuevaSolFiles.length + '/5 imagen(es)' : '';
+        }
+
+        async function enviarNuevaSol() {
+            var titulo = document.getElementById('nuevaSolTitulo').value.trim();
+            var desc   = document.getElementById('nuevaSolDesc').value.trim();
+            document.getElementById('nuevaSolErrTitulo').classList.toggle('show', !titulo);
+            document.getElementById('nuevaSolErrDesc').classList.toggle('show', !desc);
+            if (!titulo || !desc) return;
+
+            var btn = document.getElementById('btnEnviarNuevaSol');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Enviando...';
+            try {
+                var fd = new FormData();
+                fd.append('TipoSolicitudID', document.getElementById('nuevaSolTipo').value);
+                fd.append('Titulo',          titulo);
+                fd.append('Descripcion',     desc);
+                fd.append('Prioridad',       document.getElementById('nuevaSolPrioridad').value);
+                nuevaSolFiles.forEach(function(f){ fd.append('Imagenes', f); });
+
+                var resp = await fetch('/Solicitudes/Create?handler=AjaxForm', {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': getAntiForgery(), 'X-Requested-With': 'XMLHttpRequest' },
+                    body: fd
+                });
+                var data = await resp.json();
+                if (resp.ok && data.folio) {
+                    document.getElementById('nuevaSolFolio').textContent      = data.folio;
+                    document.getElementById('nuevaSolFormWrap').style.display = 'none';
+                    document.getElementById('nuevaSolSuccess').style.display  = 'flex';
+                    document.getElementById('nuevaSolFooter').innerHTML =
+                        '<button type="button" class="vmodal-btn-cancel" data-bs-dismiss="modal">' +
+                        '<i class="bi bi-check-lg me-1"></i>Cerrar</button>';
+                } else {
+                    throw new Error(data.message || 'Error al registrar la solicitud.');
+                }
+            } catch(err) {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-send-fill"></i> Registrar solicitud';
+                alert('Error: ' + err.message);
+            }
+        }
+
+        // ── Modal Solicitar Acceso Dashboard ──────────────────────
+        var accesoFiles = [];
+
+        (function setupAccesoDropZone() {
+            var dropEl  = document.getElementById('accesoDropZone');
+            var inputEl = document.getElementById('accesoImagenes');
+            if (!dropEl || !inputEl) return;
+            dropEl.addEventListener('dragover',  function(e){ e.preventDefault(); dropEl.classList.add('drag-over'); });
+            dropEl.addEventListener('dragleave', function(){ dropEl.classList.remove('drag-over'); });
+            dropEl.addEventListener('drop', function(e){
+                e.preventDefault(); dropEl.classList.remove('drag-over');
+                addAccesoFiles(Array.from(e.dataTransfer.files));
+            });
+            inputEl.addEventListener('change', function(){
+                addAccesoFiles(Array.from(inputEl.files)); inputEl.value = '';
+            });
+        })();
+
+        function addAccesoFiles(newFiles) {
+            newFiles.forEach(function(f){
+                if (accesoFiles.length >= 5 || !f.type.startsWith('image/')) return;
+                accesoFiles.push(f);
+            });
+            renderAccesoPreviews();
+        }
+        function renderAccesoPreviews() {
+            var wrap = document.getElementById('accesoPreviews');
+            if (!wrap) return;
+            wrap.innerHTML = '';
+            accesoFiles.forEach(function(f, i){
+                var url  = URL.createObjectURL(f);
+                var item = document.createElement('div');
+                item.className = 'vmodal-preview-item';
+                item.innerHTML = '<img src="' + url + '"><button class="vmodal-remove-img" onclick="accesoFiles.splice(' + i + ',1);renderAccesoPreviews()"><i class="bi bi-x"></i></button>';
+                wrap.appendChild(item);
+            });
+            var cnt = document.getElementById('accesoCounter');
+            if (cnt) cnt.textContent = accesoFiles.length > 0 ? accesoFiles.length + '/5 imagen(es)' : '';
+        }
+
+        function abrirModalAcceso(dashId, folio, nombre) {
+            document.getElementById('accesoDashID').value = dashId;
+            document.getElementById('accesoDashBar').innerHTML =
+                '<span class="vmodal-dash-folio">' + folio + '</span>' +
+                '<span class="vmodal-dash-nombre">' + nombre + '</span>';
+            document.getElementById('accesoTitulo').value = 'Solicitud de acceso: ' + nombre;
+            document.getElementById('accesoFormWrap').style.display = '';
+            document.getElementById('accesoSuccess').style.display  = 'none';
+            document.getElementById('accesoFooter').style.display   = '';
+            document.getElementById('accesoFooter').innerHTML =
+                '<button type="button" class="vmodal-btn-cancel" data-bs-dismiss="modal">' +
+                '<i class="bi bi-x-lg"></i> Cancelar</button>' +
+                '<button type="button" class="vmodal-btn-submit vmodal-btn-submit--sol" id="btnEnviarAcceso" onclick="enviarAcceso()">' +
+                '<i class="bi bi-send-fill"></i> Registrar solicitud</button>';
+            document.querySelectorAll('#accesoFormWrap .vmodal-error')
+                .forEach(function(e){ e.classList.remove('show'); });
+            accesoFiles.length = 0;
+            renderAccesoPreviews();
+
+            var modalEl = document.getElementById('modalAcceso');
+            var modal   = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modalEl.addEventListener('hidden.bs.modal', function handler() {
+                modalEl.removeEventListener('hidden.bs.modal', handler);
+                bootstrap.Modal.getInstance(modalEl)?.dispose();
+            });
+            modal.show();
+        }
+
+        async function enviarAcceso() {
+            var titulo = document.getElementById('accesoTitulo').value.trim();
+            var desc   = document.getElementById('accesoDesc').value.trim();
+            document.getElementById('accesoErrTitulo').classList.toggle('show', !titulo);
+            document.getElementById('accesoErrDesc').classList.toggle('show',   !desc);
+            if (!titulo || !desc) return;
+
+            var btn = document.getElementById('btnEnviarAcceso');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Enviando...';
+            try {
+                var dashId = document.getElementById('accesoDashID').value;
+                var fd = new FormData();
+                fd.append('DashboardID',     dashId);
+                fd.append('TipoSolicitudID', '3');
+                fd.append('Titulo',          document.getElementById('accesoTitulo').value.trim());
+                fd.append('Descripcion',     desc);
+                fd.append('Prioridad',       document.getElementById('accesoPrioridad').value);
+                accesoFiles.forEach(function(f){ fd.append('Imagenes', f); });
+
+                var resp = await fetch('/Solicitudes/Create?handler=AjaxForm', {
+                    method: 'POST',
+                    headers: { 'RequestVerificationToken': getAntiForgery(), 'X-Requested-With': 'XMLHttpRequest' },
+                    body: fd
+                });
+                var data = await resp.json();
+                if (resp.ok && data.folio) {
+                    document.getElementById('accesoFolioGenerado').textContent = data.folio;
+                    document.getElementById('accesoFormWrap').style.display    = 'none';
+                    document.getElementById('accesoSuccess').style.display     = 'flex';
+                    document.getElementById('accesoFooter').innerHTML =
+                        '<button type="button" class="vmodal-btn-cancel" data-bs-dismiss="modal">' +
+                        '<i class="bi bi-check-lg me-1"></i>Cerrar</button>';
+                    marcarBtnSolicitado(dashId);
+                } else {
+                    throw new Error(data.message || 'Error al registrar la solicitud.');
+                }
+            } catch(err) {
+                var btn2 = document.getElementById('btnEnviarAcceso');
+                if (btn2) { btn2.disabled = false; btn2.innerHTML = '<i class="bi bi-send-fill"></i> Registrar solicitud'; }
+                alert('Error: ' + err.message);
+            }
+        }
+
+        function marcarBtnSolicitado(dashId) {
+            document.querySelectorAll('.btn-solicitar-acceso').forEach(function(btn) {
+                var onclick = btn.getAttribute('onclick') || '';
+                if (onclick.indexOf("'" + dashId + "'") !== -1) {
+                    btn.disabled  = true;
+                    btn.innerHTML = '<i class="bi bi-check-circle-fill"></i> Solicitado';
+                    btn.classList.add('btn-solicitado');
+                    btn.setAttribute('data-dash-id', dashId);
+                    btn.removeAttribute('onclick');
+                }
+            });
+        }
+
+        // ── Utils ──────────────────────────────────────────────────
+        function getAntiForgery() {
+            var el = document.querySelector('input[name="__RequestVerificationToken"]');
+            return el ? el.value : '';
+        }
+        function escHtml(str) {
+            return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        }
+        function formatFecha(iso) {
+            var d = new Date(iso);
+            return d.toLocaleDateString('es-MX', { day:'2-digit', month:'short' })
+                 + ' ' + d.toLocaleTimeString('es-MX', { hour:'2-digit', minute:'2-digit' });
+        }
+    </script>
+}

@@ -1,0 +1,212 @@
+@page
+@model CentralDashboards.Pages.Dashboards.CreateModel
+@{
+    ViewData["Title"] = "Nuevo Dashboard";
+}
+
+<!-- HEADER -->
+<div class="form-page-header form-page-header--dash">
+    <a href="/Dashboards" class="btn-back-sq btn-back-sq--dash">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h2 class="form-page-title">Nuevo Dashboard</h2>
+        <p class="form-page-sub">Registra un nuevo reporte en la plataforma</p>
+    </div>
+</div>
+
+<!-- CARD -->
+<div class="form-card form-card--dash" style="max-width:680px">
+    <div class="form-card-header">
+        <div class="form-card-ico"><i class="bi bi-bar-chart-line-fill"></i></div>
+        <div>
+            <h5 class="form-card-title">Registrar Dashboard</h5>
+            <p class="form-card-sub">Completa los campos requeridos</p>
+        </div>
+    </div>
+
+    <div class="form-card-body">
+        <form method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <div class="form-field">
+                <label asp-for="Input.Nombre" class="form-field-label">
+                    Nombre <span class="form-req">*</span>
+                </label>
+                <input asp-for="Input.Nombre" class="form-field-control"
+                       placeholder="Ej. Ventas Mensuales Q3" />
+                <span asp-validation-for="Input.Nombre" class="form-field-error"></span>
+            </div>
+
+            <div class="form-field">
+                <label asp-for="Input.Descripcion" class="form-field-label">Descripción</label>
+                <textarea asp-for="Input.Descripcion" class="form-field-control form-textarea"
+                          placeholder="¿Qué información muestra este dashboard?"></textarea>
+            </div>
+
+            <div class="form-field">
+                <label asp-for="Input.UnidadID" class="form-field-label">
+                    Unidad de Negocio <span class="form-req">*</span>
+                </label>
+                <select asp-for="Input.UnidadID" asp-items="Model.Unidades" class="form-field-control">
+                    <option value="">-- Selecciona una unidad --</option>
+                </select>
+                <span asp-validation-for="Input.UnidadID" class="form-field-error"></span>
+            </div>
+
+            <div class="form-field">
+                <label asp-for="Input.URLReporte" class="form-field-label">
+                    URL del Reporte <span class="form-req">*</span>
+                </label>
+                <div class="form-input-icon-wrap">
+                    <i class="bi bi-link-45deg form-input-ico url-ico"></i>
+                    <input asp-for="Input.URLReporte" class="form-field-control form-field-control--ico"
+                           placeholder="https://app.powerbi.com/..." />
+                </div>
+                <span asp-validation-for="Input.URLReporte" class="form-field-error"></span>
+            </div>
+
+            <!-- Imagen de previsualización -->
+            <div class="form-field">
+                <label class="form-field-label">
+                    <i class="bi bi-image me-1"></i> Imagen de previsualización
+                    <span class="form-field-label-opt">(opcional)</span>
+                </label>
+                <div class="img-upload-box">
+                    <div class="form-field" style="margin-bottom:.75rem">
+                        <span class="form-field-hint" style="margin-bottom:.35rem">
+                            <i class="bi bi-upload"></i> Subir imagen desde tu equipo
+                        </span>
+                        <input type="file" name="Imagen" id="imagenFile"
+                               accept="image/png,image/jpeg,image/webp,image/gif"
+                               class="form-field-control" style="padding:.4rem .7rem" />
+                    </div>
+                    <div class="img-upload-sep">─── ó ───</div>
+                    <div>
+                        <span class="form-field-hint" style="margin-bottom:.35rem">
+                            <i class="bi bi-link-45deg"></i> Pegar URL de imagen
+                        </span>
+                        <input asp-for="Input.ImagenURL" class="form-field-control"
+                               id="imagenUrlInput" placeholder="https://..." />
+                    </div>
+                    <div id="imagenPreview" class="img-upload-preview" style="display:none">
+                        <span class="form-field-hint">Vista previa:</span>
+                        <img id="imagenPreviewImg" src="" alt="Preview" />
+                    </div>
+                </div>
+                <div class="form-field-hint">
+                    <i class="bi bi-info-circle-fill"></i>
+                    Recomendado: captura del dashboard. PNG o JPG, máx 5 MB.
+                </div>
+            </div>
+
+            <!-- ── Documentación ───────────────────────────────── -->
+            <div class="form-section-divider">
+                <i class="bi bi-file-earmark-text"></i> Documentación del Dashboard
+            </div>
+
+            <div class="form-field">
+                <label class="form-field-label">
+                    Subir documentación
+                    <span class="form-field-hint">PDF, Word o PowerPoint — máx. 20 MB (opcional)</span>
+                </label>
+                <div class="doc-dropzone" id="docDropZone"
+                     onclick="document.getElementById('docFileInput').click()">
+                    <i class="bi bi-cloud-upload" style="font-size:1.5rem;"></i>
+                    <span>Arrastra el archivo aquí o <strong>haz clic</strong> para seleccionar</span>
+                </div>
+                <input type="file" id="docFileInput" name="ArchivoDocumentacion"
+                       accept=".pdf,.doc,.docx,.ppt,.pptx"
+                       style="display:none"
+                       onchange="mostrarDocSeleccionado(this)" />
+                <div id="docFilePreview" class="doc-file-preview" style="display:none;">
+                    <i class="bi bi-file-earmark-fill"></i>
+                    <span id="docFileName"></span>
+                    <button type="button" onclick="limpiarDoc()" class="doc-remove-btn">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+                @if (!string.IsNullOrEmpty(ViewData.ModelState["ArchivoDocumentacion"]?.Errors.FirstOrDefault()?.ErrorMessage))
+                {
+                    <span class="form-field-error">
+                        @ViewData.ModelState["ArchivoDocumentacion"]!.Errors.First().ErrorMessage
+                    </span>
+                }
+            </div>
+
+            <!-- Es Privado -->
+            <div class="form-switch-box">
+                <div class="form-switch-toggle">
+                    <input asp-for="Input.EsPrivado" type="checkbox" class="form-switch-input gold-check" id="switchPrivado" />
+                    <label for="switchPrivado" class="form-switch-track"></label>
+                </div>
+                <div>
+                    <div class="form-switch-label">
+                        <i class="bi bi-lock-fill ico-priv"></i> Dashboard privado
+                    </div>
+                    <div class="form-switch-desc">
+                        Solo los usuarios con permiso explícito podrán ver este dashboard.
+                        Al guardar serás redirigido a la pantalla de permisos.
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-footer">
+                <a href="/Dashboards" class="btn-form-cancel">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </a>
+                <button type="submit" class="btn-form-submit btn-form-submit--dash">
+                    <i class="bi bi-bar-chart-line-fill"></i> Registrar Dashboard
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // ── Imagen previsualización ────────────────────────────
+        document.getElementById('imagenFile').addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                document.getElementById('imagenPreviewImg').src = e.target.result;
+                document.getElementById('imagenPreview').style.display = 'block';
+                document.getElementById('imagenUrlInput').value = '';
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('imagenUrlInput').addEventListener('input', function () {
+            const url = this.value.trim();
+            if (url) {
+                document.getElementById('imagenPreviewImg').src = url;
+                document.getElementById('imagenPreview').style.display = 'block';
+                document.getElementById('imagenFile').value = '';
+            } else {
+                document.getElementById('imagenPreview').style.display = 'none';
+            }
+        });
+
+        document.getElementById('imagenPreviewImg').addEventListener('error', function () {
+            this.src = '';
+            document.getElementById('imagenPreview').style.display = 'none';
+        });
+
+        // ── Documentación ──────────────────────────────────────
+        function mostrarDocSeleccionado(input) {
+            if (!input.files.length) return;
+            document.getElementById('docFileName').textContent = input.files[0].name;
+            document.getElementById('docFilePreview').style.display = 'flex';
+            document.getElementById('docDropZone').style.display    = 'none';
+        }
+
+        function limpiarDoc() {
+            document.getElementById('docFileInput').value = '';
+            document.getElementById('docFilePreview').style.display = 'none';
+            document.getElementById('docDropZone').style.display    = '';
+        }
+    </script>
+}

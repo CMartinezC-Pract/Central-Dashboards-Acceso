@@ -1,0 +1,310 @@
+@page
+@model CentralDashboards.Pages.Admin.Catalogos.IndexModel
+@{
+    ViewData["Title"] = "Catálogos";
+}
+
+<!-- HEADER -->
+<div class="page-header">
+    <div class="page-header-left">
+        <div class="module-icon admin"><i class="bi bi-tags-fill"></i></div>
+        <div>
+            <h2 class="page-title">Catálogos</h2>
+            <p class="page-sub">Gestión de estatus, tipos de incidencia y tipos de solicitud</p>
+        </div>
+    </div>
+</div>
+
+<!-- TABS -->
+<div class="cat-tabs">
+    <button class="cat-tab active" data-target="tabEstatus">
+        <i class="bi bi-circle-half"></i> Estatus
+    </button>
+    <button class="cat-tab" data-target="tabTiposInc">
+        <i class="bi bi-exclamation-triangle"></i> Tipos de Incidencia
+    </button>
+    <button class="cat-tab" data-target="tabTiposSol">
+        <i class="bi bi-clipboard-plus"></i> Tipos de Solicitud
+    </button>
+</div>
+
+<!-- ── TAB ESTATUS ──────────────────────────────────────── -->
+<div id="tabEstatus" class="cat-panel active">
+    <div class="cd-table-wrap">
+        <div class="cat-panel-toolbar">
+            <span class="cat-panel-title">Estatus</span>
+            <button class="btn-primary-action btn-primary-action--sm"
+                    onclick="abrirModalEstatus()">
+                <i class="bi bi-plus-lg"></i> Nuevo
+            </button>
+        </div>
+        <div class="cd-table-scroll">
+            <table class="cd-table">
+                <thead>
+                    <tr><th>Nombre</th><th>Aplica a</th><th>Color</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var e in Model.Estatus)
+                    {
+                        <tr>
+                            <td>
+                                <span class="cat-badge-color" style="background:@(e.Color ?? "#6B7280")">
+                                    @e.NombreEstatus
+                                </span>
+                            </td>
+                            <td><span style="font-size:.78rem;color:var(--c-ink-3)">@e.AplicaA</span></td>
+                            <td>
+                                <div class="cat-color-preview">
+                                    <div class="cat-color-swatch" style="background:@(e.Color ?? "#6B7280")"></div>
+                                    <span style="font-family:var(--font-mono);font-size:.72rem;color:var(--c-ink-4)">@(e.Color ?? "—")</span>
+                                </div>
+                            </td>
+                            <td class="cat-actions">
+                                <button class="btn-tbl btn-tbl-edit"
+                                        onclick="abrirModalEstatus(@e.EstatusID,'@e.NombreEstatus','@e.AplicaA','@(e.Color ?? "")')">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+                                <button class="btn-tbl btn-tbl-del"
+                                        onclick="eliminarEstatus(@e.EstatusID,'@e.NombreEstatus')">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ── TAB TIPOS INCIDENCIA ────────────────────────────── -->
+<div id="tabTiposInc" class="cat-panel">
+    <div class="cd-table-wrap">
+        <div class="cat-panel-toolbar">
+            <span class="cat-panel-title">Tipos de Incidencia</span>
+            <button class="btn-primary-action btn-primary-action--sm"
+                    onclick="abrirModalTipo('Incidencia')">
+                <i class="bi bi-plus-lg"></i> Nuevo
+            </button>
+        </div>
+        <div class="cd-table-scroll">
+            <table class="cd-table">
+                <thead>
+                    <tr><th>Nombre</th><th>Descripción</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.TiposIncidencia)
+                    {
+                        <tr>
+                            <td><span class="cd-table-name">@t.Nombre</span></td>
+                            <td><span style="font-size:.78rem;color:var(--c-ink-3)">@(t.Descripcion ?? "—")</span></td>
+                            <td class="cat-actions">
+                                <button class="btn-tbl btn-tbl-edit"
+                                        onclick="abrirModalTipo('Incidencia',@t.TipoID,'@t.Nombre','@(t.Descripcion ?? "")')">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+                                <button class="btn-tbl btn-tbl-del"
+                                        onclick="eliminarTipo('Incidencia',@t.TipoID,'@t.Nombre')">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ── TAB TIPOS SOLICITUD ─────────────────────────────── -->
+<div id="tabTiposSol" class="cat-panel">
+    <div class="cd-table-wrap">
+        <div class="cat-panel-toolbar">
+            <span class="cat-panel-title">Tipos de Solicitud</span>
+            <button class="btn-primary-action btn-primary-action--sm"
+                    onclick="abrirModalTipo('Solicitud')">
+                <i class="bi bi-plus-lg"></i> Nuevo
+            </button>
+        </div>
+        <div class="cd-table-scroll">
+            <table class="cd-table">
+                <thead>
+                    <tr><th>Nombre</th><th>Descripción</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var t in Model.TiposSolicitud)
+                    {
+                        <tr>
+                            <td><span class="cd-table-name">@t.Nombre</span></td>
+                            <td><span style="font-size:.78rem;color:var(--c-ink-3)">@(t.Descripcion ?? "—")</span></td>
+                            <td class="cat-actions">
+                                <button class="btn-tbl btn-tbl-edit"
+                                        onclick="abrirModalTipo('Solicitud',@t.TipoID,'@t.Nombre','@(t.Descripcion ?? "")')">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </button>
+                                <button class="btn-tbl btn-tbl-del"
+                                        onclick="eliminarTipo('Solicitud',@t.TipoID,'@t.Nombre')">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- ── MODAL ESTATUS ────────────────────────────────────── -->
+<div class="modal fade" id="modalEstatus" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content cd-modal">
+            <div class="cd-modal-header">
+                <h5 id="modalEstatusTitle">Nuevo Estatus</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="cd-modal-body">
+                <input type="hidden" id="estatusId" value="0" />
+                <div class="form-field">
+                    <label class="form-field-label">Nombre <span class="form-req">*</span></label>
+                    <input type="text" id="estatusNombre" class="form-field-control" placeholder="Ej: En revisión" />
+                </div>
+                <div class="form-field">
+                    <label class="form-field-label">Aplica a <span class="form-req">*</span></label>
+                    <select id="estatusAplicaA" class="form-field-control">
+                        <option value="Incidencia">Incidencia</option>
+                        <option value="Solicitud">Solicitud</option>
+                        <option value="Ambos">Ambos</option>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <label class="form-field-label">Color (badge)</label>
+                    <div class="cat-color-row">
+                        <input type="color" id="estatusColorPicker" class="cat-color-input" value="#6B7280" />
+                        <input type="text" id="estatusColor" class="form-field-control" placeholder="#6B7280" maxlength="10" />
+                    </div>
+                </div>
+            </div>
+            <div class="cd-modal-footer">
+                <button type="button" class="btn-form-cancel" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn-form-submit btn-form-submit--admin" onclick="guardarEstatus()">
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ── MODAL TIPO ───────────────────────────────────────── -->
+<div class="modal fade" id="modalTipo" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content cd-modal">
+            <div class="cd-modal-header">
+                <h5 id="modalTipoTitle">Nuevo Tipo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="cd-modal-body">
+                <input type="hidden" id="tipoId" value="0" />
+                <input type="hidden" id="tipoEntidad" value="" />
+                <div class="form-field">
+                    <label class="form-field-label">Nombre <span class="form-req">*</span></label>
+                    <input type="text" id="tipoNombre" class="form-field-control" placeholder="Ej: Datos incorrectos" />
+                </div>
+                <div class="form-field">
+                    <label class="form-field-label">Descripción</label>
+                    <textarea id="tipoDescripcion" class="form-field-control form-textarea" style="min-height:70px"></textarea>
+                </div>
+            </div>
+            <div class="cd-modal-footer">
+                <button type="button" class="btn-form-cancel" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn-form-submit btn-form-submit--admin" onclick="guardarTipo()">
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const token = () => document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+
+        // ── TABS ──────────────────────────────────────────────────
+        document.querySelectorAll('.cat-tab').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.cat-panel').forEach(p => p.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.target).classList.add('active');
+            });
+        });
+
+        // ── COLOR PICKER SYNC ─────────────────────────────────────
+        document.getElementById('estatusColorPicker').addEventListener('input', function () {
+            document.getElementById('estatusColor').value = this.value;
+        });
+        document.getElementById('estatusColor').addEventListener('input', function () {
+            if (/^#[0-9A-Fa-f]{6}$/.test(this.value))
+                document.getElementById('estatusColorPicker').value = this.value;
+        });
+
+        // ── ESTATUS ───────────────────────────────────────────────
+        function abrirModalEstatus(id=0, nombre='', aplicaA='Ambos', color='#6B7280') {
+            document.getElementById('estatusId').value      = id;
+            document.getElementById('estatusNombre').value  = nombre;
+            document.getElementById('estatusAplicaA').value = aplicaA;
+            document.getElementById('estatusColor').value   = color;
+            document.getElementById('estatusColorPicker').value = color || '#6B7280';
+            document.getElementById('modalEstatusTitle').textContent = id ? 'Editar Estatus' : 'Nuevo Estatus';
+            new bootstrap.Modal(document.getElementById('modalEstatus')).show();
+        }
+
+        async function guardarEstatus() {
+            const id = parseInt(document.getElementById('estatusId').value);
+            const nombre = document.getElementById('estatusNombre').value.trim();
+            const aplica = document.getElementById('estatusAplicaA').value;
+            const color  = document.getElementById('estatusColor').value.trim();
+            if (!nombre) { alert('El nombre es obligatorio.'); return; }
+            const handler = id ? 'ActualizarEstatus' : 'CrearEstatus';
+            const res  = await fetch(`?handler=${handler}`, { method:'POST', headers:{'Content-Type':'application/json','RequestVerificationToken':token()}, body:JSON.stringify({id,nombre,aplicaA:aplica,color}) });
+            const data = await res.json();
+            if (data.success) location.reload(); else alert(data.error ?? 'Error al guardar.');
+        }
+
+        async function eliminarEstatus(id, nombre) {
+            if (!confirm(`¿Eliminar estatus "${nombre}"?`)) return;
+            const res  = await fetch('?handler=EliminarEstatus', { method:'POST', headers:{'Content-Type':'application/json','RequestVerificationToken':token()}, body:JSON.stringify({id}) });
+            const data = await res.json();
+            if (data.success) location.reload(); else alert(data.error ?? 'No se puede eliminar (está en uso).');
+        }
+
+        // ── TIPOS ─────────────────────────────────────────────────
+        function abrirModalTipo(entidad, id=0, nombre='', desc='') {
+            document.getElementById('tipoId').value          = id;
+            document.getElementById('tipoEntidad').value     = entidad;
+            document.getElementById('tipoNombre').value      = nombre;
+            document.getElementById('tipoDescripcion').value = desc;
+            document.getElementById('modalTipoTitle').textContent = (id ? 'Editar' : 'Nuevo') + ' Tipo de ' + entidad;
+            new bootstrap.Modal(document.getElementById('modalTipo')).show();
+        }
+
+        async function guardarTipo() {
+            const id      = parseInt(document.getElementById('tipoId').value);
+            const entidad = document.getElementById('tipoEntidad').value;
+            const nombre  = document.getElementById('tipoNombre').value.trim();
+            const desc    = document.getElementById('tipoDescripcion').value.trim();
+            if (!nombre) { alert('El nombre es obligatorio.'); return; }
+            const handler = id ? `Actualizar${entidad}Tipo` : `Crear${entidad}Tipo`;
+            const res  = await fetch(`?handler=${handler}`, { method:'POST', headers:{'Content-Type':'application/json','RequestVerificationToken':token()}, body:JSON.stringify({id,nombre,descripcion:desc}) });
+            const data = await res.json();
+            if (data.success) location.reload(); else alert(data.error ?? 'Error al guardar.');
+        }
+
+        async function eliminarTipo(entidad, id, nombre) {
+            if (!confirm(`¿Eliminar tipo "${nombre}"?`)) return;
+            const res  = await fetch(`?handler=Eliminar${entidad}Tipo`, { method:'POST', headers:{'Content-Type':'application/json','RequestVerificationToken':token()}, body:JSON.stringify({id}) });
+            const data = await res.json();
+            if (data.success) location.reload(); else alert(data.error ?? 'No se puede eliminar (está en uso).');
+        }
+    </script>
+}

@@ -1,0 +1,160 @@
+@page
+@model CentralDashboards.Pages.Solicitudes.CreateModel
+@{
+    ViewData["Title"] = "Nueva Solicitud";
+}
+
+<!-- HEADER -->
+<div class="form-page-header form-page-header--sol">
+    <a href="/Solicitudes" class="btn-back-sq btn-back-sq--sol">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h2 class="form-page-title">Nueva Solicitud</h2>
+        <p class="form-page-sub">Completa el formulario para registrar tu solicitud</p>
+    </div>
+</div>
+
+<!-- CARD -->
+<div class="form-card form-card--sol">
+    <div class="form-card-header">
+        <div class="form-card-ico"><i class="bi bi-send-fill"></i></div>
+        <div>
+            <h5 class="form-card-title">Registrar Solicitud</h5>
+            <p class="form-card-sub">Completa todos los campos requeridos</p>
+        </div>
+    </div>
+
+    <div class="form-card-body">
+        <form method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <div class="form-field">
+                <label asp-for="Input.DashboardID" class="form-field-label">
+                    Dashboard relacionado <span class="form-req">*</span>
+                </label>
+                <select asp-for="Input.DashboardID" asp-items="Model.Dashboards" class="form-field-control">
+                    <option value="">Selecciona un dashboard...</option>
+                </select>
+                <span asp-validation-for="Input.DashboardID" class="form-field-error"></span>
+            </div>
+
+            <div class="form-two-col">
+                <div class="form-field">
+                    <label asp-for="Input.TipoSolicitudID" class="form-field-label">
+                        Tipo <span class="form-req">*</span>
+                    </label>
+                    <select asp-for="Input.TipoSolicitudID" asp-items="Model.Tipos" class="form-field-control">
+                        <option value="">Selecciona el tipo...</option>
+                    </select>
+                    <span asp-validation-for="Input.TipoSolicitudID" class="form-field-error"></span>
+                </div>
+                <div class="form-field">
+                    <label class="form-field-label">Prioridad</label>
+                    <div class="pri-grid">
+                        <input type="radio" asp-for="Input.Prioridad" value="Baja" id="pBaja" class="pri-opt p-baja" />
+                        <label for="pBaja" class="pri-lbl"><span class="pri-ico">🟢</span>Baja</label>
+                        <input type="radio" asp-for="Input.Prioridad" value="Media" id="pMedia" class="pri-opt p-media" checked />
+                        <label for="pMedia" class="pri-lbl"><span class="pri-ico">🟡</span>Media</label>
+                        <input type="radio" asp-for="Input.Prioridad" value="Alta" id="pAlta" class="pri-opt p-alta" />
+                        <label for="pAlta" class="pri-lbl"><span class="pri-ico">🔴</span>Alta</label>
+                        <input type="radio" asp-for="Input.Prioridad" value="Critica" id="pCritica" class="pri-opt p-critica" />
+                        <label for="pCritica" class="pri-lbl"><span class="pri-ico">⚫</span>Crítica</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label asp-for="Input.Titulo" class="form-field-label">
+                    Título <span class="form-req">*</span>
+                </label>
+                <input asp-for="Input.Titulo" class="form-field-control"
+                       placeholder="Describe brevemente la solicitud" />
+                <span asp-validation-for="Input.Titulo" class="form-field-error"></span>
+            </div>
+
+            <div class="form-field">
+                <label asp-for="Input.Descripcion" class="form-field-label">
+                    Descripción detallada <span class="form-req">*</span>
+                </label>
+                <textarea asp-for="Input.Descripcion" class="form-field-control form-textarea"
+                          placeholder="Describe la solicitud con detalle: qué necesitas, cuándo, contexto relevante..."></textarea>
+                <div class="form-field-hint">
+                    <i class="bi bi-info-circle-fill"></i>
+                    Incluye toda la información que facilite atender tu solicitud lo antes posible.
+                </div>
+                <span asp-validation-for="Input.Descripcion" class="form-field-error"></span>
+            </div>
+
+            <div class="form-field">
+                <label class="form-field-label">
+                    <i class="bi bi-images me-1"></i> Imágenes adjuntas
+                    <span class="form-field-label-opt">(opcional · máx. 5 · 5 MB c/u)</span>
+                </label>
+                <div class="form-dropzone" id="dropZone">
+                    <i class="bi bi-cloud-arrow-up form-dz-ico"></i>
+                    <p>Arrastra imágenes aquí o <u>haz clic para seleccionar</u></p>
+                    <p class="form-dz-hint">JPG, PNG, GIF, WEBP</p>
+                    <input type="file" name="Imagenes" id="fileInput" accept="image/*" multiple />
+                </div>
+                <div class="form-img-grid" id="previewGrid"></div>
+                <div class="form-img-count" id="imgCountBadge"></div>
+            </div>
+
+            <div class="form-footer">
+                <a href="/Solicitudes" class="btn-form-cancel">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </a>
+                <button type="submit" class="btn-form-submit btn-form-submit--sol">
+                    <i class="bi bi-send-fill"></i> Registrar solicitud
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        (function () {
+            const MAX_FILES = 5, MAX_BYTES = 5 * 1024 * 1024;
+            const MIME_OK   = ['image/jpeg','image/jpg','image/png','image/gif','image/webp'];
+            const dropZone  = document.getElementById('dropZone');
+            const fileInput = document.getElementById('fileInput');
+            const grid      = document.getElementById('previewGrid');
+            const badge     = document.getElementById('imgCountBadge');
+            let archivos = [];
+
+            dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+            dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+            dropZone.addEventListener('drop', e => { e.preventDefault(); dropZone.classList.remove('dragover'); agregarArchivos([...e.dataTransfer.files]); });
+            fileInput.addEventListener('change', () => { agregarArchivos([...fileInput.files]); fileInput.value = ''; });
+
+            function agregarArchivos(nuevos) {
+                for (const f of nuevos) {
+                    if (archivos.length >= MAX_FILES) break;
+                    if (!MIME_OK.includes(f.type)) { alert(`"${f.name}" no es una imagen válida.`); continue; }
+                    if (f.size > MAX_BYTES)         { alert(`"${f.name}" supera los 5 MB.`); continue; }
+                    archivos.push(f);
+                }
+                sincronizarInput(); renderPreviews();
+            }
+            function sincronizarInput() {
+                const dt = new DataTransfer();
+                archivos.forEach(f => dt.items.add(f));
+                fileInput.files = dt.files;
+            }
+            function renderPreviews() {
+                grid.innerHTML = '';
+                archivos.forEach((f, i) => {
+                    const wrap = document.createElement('div'); wrap.className = 'form-img-thumb';
+                    const img  = document.createElement('img'); img.src = URL.createObjectURL(f); img.onload = () => URL.revokeObjectURL(img.src);
+                    const btn  = document.createElement('button'); btn.type = 'button'; btn.className = 'form-img-remove'; btn.innerHTML = '<i class="bi bi-x"></i>';
+                    btn.addEventListener('click', () => { archivos.splice(i, 1); sincronizarInput(); renderPreviews(); });
+                    wrap.appendChild(img); wrap.appendChild(btn); grid.appendChild(wrap);
+                });
+                badge.textContent = archivos.length > 0 ? `${archivos.length} imagen${archivos.length > 1 ? 'es' : ''} seleccionada${archivos.length > 1 ? 's' : ''}` : '';
+            }
+        })();
+    </script>
+}

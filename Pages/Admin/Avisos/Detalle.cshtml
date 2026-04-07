@@ -1,0 +1,124 @@
+﻿@page "{id:int}"
+@model CentralDashboards.Pages.Avisos.DetalleModel
+@{
+    ViewData["Title"] = Model.Aviso?.Titulo ?? "Aviso";
+}
+
+@if (Model.Aviso is null)
+{
+    <div class="empty-state"><i class="bi bi-exclamation-circle"></i><p>Aviso no encontrado.</p></div>
+    return;
+}
+
+<div class="page-header">
+    <div style="display:flex;align-items:center;gap:.75rem;">
+        <a href="/" class="btn-back-sq"><i class="bi bi-arrow-left"></i></a>
+        <div>
+            <h4 class="page-header-title">@Model.Aviso.Titulo</h4>
+            <p class="page-header-sub">@Model.Aviso.Fecha.ToString("dd MMM yyyy") · @Model.Aviso.CreadoPorNombre</p>
+        </div>
+    </div>
+    <span class="badge-pill @TipoBadge(Model.Aviso.Tipo)">
+        <i class="bi @TipoIcono(Model.Aviso.Tipo)"></i> @Model.Aviso.Tipo
+    </span>
+</div>
+
+<!-- Contenido del aviso -->
+<div class="content-card mb-3">
+    <div class="content-card-header">
+        <i class="bi bi-megaphone-fill"></i> Comunicado
+    </div>
+    <div class="content-card-body">@Model.Aviso.Contenido</div>
+</div>
+
+<!-- Panel de comentarios -->
+<div class="notas-panel">
+    <div class="notas-header">
+        <span class="notas-header-title">
+            <i class="bi bi-chat-dots-fill"></i> Comentarios
+        </span>
+        <span class="notas-header-count">@Model.Comentarios.Count</span>
+    </div>
+
+    <div class="notas-lista" id="listaComentarios">
+        @if (!Model.Comentarios.Any())
+        {
+            <div class="notas-empty">
+                <i class="bi bi-chat-square-dots"></i>
+                <p>Sé el primero en comentar.</p>
+            </div>
+        }
+        else
+        {
+            @foreach (var c in Model.Comentarios)
+            {
+                var esAdmin = c.RolNombre == "Administrador";
+                var iniciales = string.Join("", c.AutorNombre.Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(p => p[0]));
+                <div class="nota-item">
+                    <div class="nota-avatar @(esAdmin ? "nota-avatar--admin" : "nota-avatar--user")">
+                        @iniciales.ToUpper()
+                    </div>
+                    <div class="nota-bubble @(esAdmin ? "nota-bubble--admin" : "nota-bubble--user")">
+                        <div class="nota-bubble-top">
+                            <span class="nota-autor">@c.AutorNombre</span>
+                            @if (esAdmin)
+                            {
+                                <span class="nota-badge-admin">Admin</span>
+                            }
+                            <span class="nota-fecha">@c.FechaComentario.ToString("dd MMM yyyy HH:mm")</span>
+                        </div>
+                        <p class="nota-mensaje">@c.Mensaje</p>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+
+    <div class="notas-footer">
+        <span class="notas-footer-label">Deja un comentario</span>
+        <form method="post" asp-page-handler="Comentar" id="formComentario">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="AvisoID" value="@Model.Aviso.Id" />
+            <textarea name="Mensaje" class="notas-textarea" id="txtMensaje"
+                      placeholder="Escribe tu comentario..." maxlength="1000"
+                      oninput="actualizarContador(this)"></textarea>
+            @if (TempData["ErrComentario"] != null)
+            {
+                <span class="form-field-error">@TempData["ErrComentario"]</span>
+            }
+            <div class="notas-footer-actions">
+                <span class="notas-contador" id="contador">0 / 1000</span>
+                <button type="submit" class="notas-btn-enviar" id="btnEnviar" disabled>
+                    <i class="bi bi-send-fill"></i> Comentar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function actualizarContador(el) {
+            var n = el.value.trim().length;
+            document.getElementById('contador').textContent = el.value.length + ' / 1000';
+            document.getElementById('btnEnviar').disabled = n === 0;
+        }
+    </script>
+}
+
+@functions {
+    string TipoBadge(string tipo) => tipo switch
+    {
+        "Nuevo" => "badge-activo",
+        "Actualización" => "badge-neutral",
+        "Mantenimiento" => "badge-pri-media",
+        _ => "badge-inactivo"
+    };
+    string TipoIcono(string tipo) => tipo switch
+    {
+        "Nuevo" => "bi-stars",
+        "Actualización" => "bi-arrow-repeat",
+        "Mantenimiento" => "bi-tools",
+        _ => "bi-info-circle-fill"
+    };
+}

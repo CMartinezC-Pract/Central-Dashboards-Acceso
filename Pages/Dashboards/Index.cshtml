@@ -1,0 +1,152 @@
+@page
+@model CentralDashboards.Pages.Dashboards.IndexModel
+@{
+    ViewData["Title"] = "Dashboards";
+}
+
+<div class="page-header">
+    <div style="display:flex;align-items:center;gap:.75rem;">
+        <div class="module-icon dash"><i class="bi bi-bar-chart-line-fill"></i></div>
+        <div>
+            <h4 class="page-header-title">Dashboards</h4>
+            <p class="page-header-sub">Catálogo completo de reportes registrados en la plataforma</p>
+        </div>
+    </div>
+    <div class="page-header-actions">
+        <a href="/Dashboards/Create" class="btn-cd-primary">
+            <i class="bi bi-plus-lg"></i> Nuevo Dashboard
+        </a>
+    </div>
+</div>
+
+<!-- FILTROS -->
+<form method="get" class="filtros-card">
+    <div class="filtros-row">
+        <div class="filtros-group">
+            <label class="filtros-label">Unidad de Negocio</label>
+            <select name="UnidadId" class="cd-select">
+                <option value="">Todas las unidades</option>
+                @foreach (var u in Model.Unidades)
+                {
+                    <option value="@u.UnidadID" selected="@(Model.UnidadId == u.UnidadID)">@u.Nombre</option>
+                }
+            </select>
+        </div>
+        <div class="filtros-group">
+            <label class="filtros-label">Visibilidad</label>
+            <select name="SoloActivos" class="cd-select">
+                <option value="false" selected="@(!Model.SoloActivos)">Todos</option>
+                <option value="true" selected="@(Model.SoloActivos)">Solo activos</option>
+            </select>
+        </div>
+        <div class="filtros-btns">
+            <button type="submit" class="btn-cd-primary">
+                <i class="bi bi-funnel-fill"></i> Filtrar
+            </button>
+            <a href="/Dashboards" class="btn-cd-secondary">
+                <i class="bi bi-x-circle"></i> Limpiar
+            </a>
+        </div>
+    </div>
+</form>
+
+<!-- TABLA -->
+<div class="cd-table-wrap">
+    <div class="cd-table-scroll">
+        <table class="cd-table">
+            <thead>
+                <tr>
+                    <th>Folio</th>
+                    <th>Nombre</th>
+                    <th>Unidad de Negocio</th>
+                    <th>Tipo</th>
+                    <th>Publicado</th>
+                    <th>Estatus</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Dashboards.Any())
+                {
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="bi bi-inbox"></i>
+                                <p>No hay dashboards registrados</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @foreach (var d in Model.Dashboards)
+                {
+                    <tr>
+                        <td><span class="chip-folio chip-folio-dash">@d.Folio</span></td>
+                        <td>
+                            <div style="font-weight:700;color:var(--c-ink);">@d.Nombre</div>
+                            @if (!string.IsNullOrEmpty(d.Descripcion))
+                            {
+                                <div style="font-size:.73rem;color:var(--c-ink-3);margin-top:.1rem;">
+                                    @(d.Descripcion.Length > 60 ? d.Descripcion[..60] + "…" : d.Descripcion)
+                                </div>
+                            }
+                        </td>
+                        <td>
+                            <span class="badge-pill badge-unidad">
+                                <i class="bi bi-building"></i> @d.NombreUnidad
+                            </span>
+                        </td>
+                        <td>
+                            @if (d.EsPrivado)
+                            {
+                                <span class="badge-pill badge-privado"><i class="bi bi-shield-lock-fill"></i> Privado</span>
+                            }
+                            else
+                            {
+                                <span class="badge-pill badge-publico"><i class="bi bi-globe"></i> Público</span>
+                            }
+                        </td>
+                        <td style="font-size:.78rem;color:var(--c-ink-3);">@d.FechaPublicacion.ToString("dd/MM/yyyy")</td>
+                        <td>
+                            <span class="badge-pill @(d.Activo ? "badge-activo" : "badge-inactivo")">
+                                <i class="bi @(d.Activo ? "bi-check-circle-fill" : "bi-slash-circle")"></i>
+                                @(d.Activo ? "Activo" : "Inactivo")
+                            </span>
+                        </td>
+                        <td>
+                            <div style="display:flex;gap:.35rem;">
+                                <a href="/Dashboards/Edit?id=@d.DashboardID"
+                                   class="btn-tbl btn-tbl-edit" title="Editar">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                                @if (d.EsPrivado)
+                                {
+                                    <a href="/Dashboards/Permisos?id=@d.DashboardID"
+                                       class="btn-tbl btn-tbl-perms" title="Gestionar permisos">
+                                        <i class="bi bi-people-fill"></i>
+                                    </a>
+                                }
+                                @if (d.Activo)
+                                {
+                                    <form method="post" action="?handler=Desactivar" style="display:inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@d.DashboardID" />
+                                        <button type="button"
+                                                class="btn-tbl btn-tbl-del"
+                                                onclick="cdcConfirmSubmit(event,this,'@d.Nombre')"
+                                                title="Desactivar">
+                                            <i class="bi bi-eye-slash-fill"></i>
+                                        </button>
+                                    </form>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="cd-table-footer">
+        <i class="bi bi-bar-chart-fill" style="color:var(--c-accent);"></i>
+        Total: <strong>@Model.Dashboards.Count</strong> dashboard(s)
+    </div>
+</div>

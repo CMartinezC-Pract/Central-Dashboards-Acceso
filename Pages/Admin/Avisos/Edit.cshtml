@@ -1,0 +1,89 @@
+﻿@page "{id:int}"
+@model CentralDashboards.Pages.Admin.Avisos.EditModel
+@{
+    ViewData["Title"] = "Editar Aviso";
+}
+
+<div class="form-page-header">
+    <a asp-page="Index" class="btn-back-sq btn-back-sq--admin">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h1 class="form-page-title">Editar Aviso</h1>
+        <p class="form-page-sub">Modifica el comunicado</p>
+    </div>
+</div>
+
+<div class="form-card form-card--admin">
+    <div class="form-card-header">
+        <div class="form-card-ico"><i class="bi bi-pencil-fill"></i></div>
+        <div>
+            <div class="form-card-title">Editar Aviso</div>
+            <div class="form-card-sub">Actualiza la información del comunicado</div>
+        </div>
+    </div>
+    <div class="form-card-body">
+        <form method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Input.Id" />
+
+            <div class="form-two-col">
+                <div class="form-field">
+                    <label class="form-field-label">Tipo <span class="form-req">*</span></label>
+                    <select asp-for="Input.Tipo" class="form-field-control">
+                        <option value="Info">Info</option>
+                        <option value="Nuevo">Nuevo</option>
+                        <option value="Actualización">Actualización</option>
+                        <option value="Mantenimiento">Mantenimiento</option>
+                    </select>
+                    <span asp-validation-for="Input.Tipo" class="form-field-error"></span>
+                </div>
+                <div class="form-field">
+                    <label class="form-field-label">Fecha <span class="form-req">*</span></label>
+                    <input asp-for="Input.Fecha" type="date" class="form-field-control" />
+                    <span asp-validation-for="Input.Fecha" class="form-field-error"></span>
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label class="form-field-label">Título <span class="form-req">*</span></label>
+                <input asp-for="Input.Titulo" class="form-field-control" maxlength="150" />
+                <span asp-validation-for="Input.Titulo" class="form-field-error"></span>
+            </div>
+
+            <div class="form-field">
+                <label class="form-field-label">Contenido <span class="form-req">*</span></label>
+                <textarea asp-for="Input.Contenido" class="form-field-control form-textarea"
+                          maxlength="1000" rows="5"></textarea>
+                <span asp-validation-for="Input.Contenido" class="form-field-error"></span>
+            </div>
+
+            <div class="form-switch-box">
+                <div class="form-switch-toggle">
+                    <input asp-for="Input.Activo" type="checkbox" class="form-switch-input"
+                           id="swActivo" />
+                    <label class="form-switch-track" for="swActivo"></label>
+                </div>
+                <div>
+                    <div class="form-switch-label">
+                        <i class="bi bi-eye-fill"></i> Visible para usuarios
+                    </div>
+                    <div class="form-switch-desc">Si está desactivado, el aviso no aparecerá en el portal.</div>
+                </div>
+            </div>
+
+            <div class="form-footer">
+                <a asp-page="Index" class="btn-form-cancel">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </a>
+                <button type="submit" class="btn-form-submit btn-form-submit--admin">
+                    <i class="bi bi-check-lg"></i> Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,251 @@
+@page
+@model CentralDashboards.Pages.Dashboards.EditModel
+@{
+    ViewData["Title"] = "Editar Dashboard";
+}
+
+<!-- HEADER -->
+<div class="form-page-header form-page-header--dash">
+    <a href="/Dashboards" class="btn-back-sq btn-back-sq--dash">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h2 class="form-page-title">Editar Dashboard</h2>
+        <span class="chip-folio-dash">@Model.Folio</span>
+    </div>
+    @if (Model.Input.EsPrivado)
+    {
+        <a href="/Dashboards/Permisos?id=@Model.Input.DashboardID" class="btn-permisos">
+            <i class="bi bi-people-fill"></i> Gestionar permisos
+        </a>
+    }
+</div>
+
+<!-- CARD -->
+<div class="form-card form-card--dash" style="max-width:680px">
+    <div class="form-card-header">
+        <div class="form-card-ico"><i class="bi bi-pencil-square"></i></div>
+        <div>
+            <h5 class="form-card-title">Editar Dashboard</h5>
+            <p class="form-card-sub">Modifica los campos y guarda los cambios</p>
+        </div>
+    </div>
+
+    <div class="form-card-body">
+        <form method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Input.DashboardID" />
+
+            <div class="form-field">
+                <label asp-for="Input.Nombre" class="form-field-label">
+                    Nombre <span class="form-req">*</span>
+                </label>
+                <input asp-for="Input.Nombre" class="form-field-control" />
+                <span asp-validation-for="Input.Nombre" class="form-field-error"></span>
+            </div>
+
+            <div class="form-field">
+                <label asp-for="Input.Descripcion" class="form-field-label">Descripción</label>
+                <textarea asp-for="Input.Descripcion" class="form-field-control form-textarea"></textarea>
+            </div>
+
+            <div class="form-field">
+                <label asp-for="Input.UnidadID" class="form-field-label">
+                    Unidad de Negocio <span class="form-req">*</span>
+                </label>
+                <select asp-for="Input.UnidadID" asp-items="Model.Unidades" class="form-field-control"></select>
+                <span asp-validation-for="Input.UnidadID" class="form-field-error"></span>
+            </div>
+
+            <div class="form-field">
+                <label asp-for="Input.URLReporte" class="form-field-label">
+                    URL del Reporte <span class="form-req">*</span>
+                </label>
+                <div class="form-input-icon-wrap">
+                    <i class="bi bi-link-45deg form-input-ico url-ico"></i>
+                    <input asp-for="Input.URLReporte" class="form-field-control form-field-control--ico" />
+                </div>
+                <span asp-validation-for="Input.URLReporte" class="form-field-error"></span>
+            </div>
+
+            <!-- ── Imagen de previsualización ──────────────────── -->
+            <div class="form-section-divider">
+                <i class="bi bi-image"></i> Imagen de previsualización
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.ImagenActual))
+            {
+                <div class="doc-actual-wrap" style="margin-bottom:1rem;">
+                    <div class="doc-actual-info">
+                        <img src="@Model.ImagenActual" alt="Imagen actual"
+                             style="width:64px;height:44px;object-fit:cover;border-radius:6px;border:1px solid var(--c-border);" />
+                        <div>
+                            <div class="doc-actual-nombre">Imagen actual</div>
+                            <div class="doc-actual-sub">Sube una nueva para reemplazarla</div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <div class="form-field">
+                <label class="form-field-label">
+                    @(!string.IsNullOrEmpty(Model.ImagenActual) ? "Reemplazar imagen" : "Subir imagen")
+                    <span class="form-field-hint">PNG, JPG, WEBP o GIF — máx. 5 MB (opcional)</span>
+                </label>
+                <div class="doc-dropzone" id="imgDropZone"
+                     onclick="document.getElementById('imgFileInput').click()">
+                    <i class="bi bi-image" style="font-size:1.5rem;"></i>
+                    <span>Arrastra la imagen aquí o <strong>haz clic</strong> para seleccionar</span>
+                </div>
+                <input type="file" id="imgFileInput" name="Imagen"
+                       accept="image/png,image/jpeg,image/webp,image/gif"
+                       style="display:none"
+                       onchange="mostrarImgSeleccionada(this)" />
+                <div id="imgFilePreview" class="doc-file-preview" style="display:none;">
+                    <i class="bi bi-image-fill"></i>
+                    <span id="imgFileName"></span>
+                    <button type="button" onclick="limpiarImg()" class="doc-remove-btn">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+                <div id="imgPreviewWrap" style="display:none;margin-top:.6rem;">
+                    <img id="imgPreviewImg" src="" alt="Vista previa"
+                         style="max-height:120px;border-radius:8px;border:1px solid var(--c-border);" />
+                </div>
+                @if (ViewData.ModelState["Imagen"]?.Errors.Count > 0)
+                {
+                    <span class="form-field-error">
+                        @ViewData.ModelState["Imagen"]!.Errors.First().ErrorMessage
+                    </span>
+                }
+            </div>
+
+            <!-- Privado + Activo -->
+            <div class="switches-row">
+                <div class="switch-box switch-box--priv">
+                    <div class="form-switch-toggle">
+                        <input asp-for="Input.EsPrivado" type="checkbox" class="form-switch-input gold-check" id="switchPrivado" />
+                        <label for="switchPrivado" class="form-switch-track"></label>
+                    </div>
+                    <div>
+                        <div class="sw-label"><i class="bi bi-shield-lock-fill ico-priv"></i> Privado</div>
+                        <div class="sw-desc">Solo usuarios con permiso pueden verlo.</div>
+                    </div>
+                </div>
+                <div class="switch-box switch-box--active">
+                    <div class="form-switch-toggle">
+                        <input asp-for="Input.Activo" type="checkbox" class="form-switch-input" id="switchActivo" />
+                        <label for="switchActivo" class="form-switch-track"></label>
+                    </div>
+                    <div>
+                        <div class="sw-label"><i class="bi bi-eye-fill ico-activ"></i> Activo</div>
+                        <div class="sw-desc">Visible en la plataforma para los usuarios.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ── Documentación ───────────────────────────────── -->
+            <div class="form-section-divider">
+                <i class="bi bi-file-earmark-text"></i> Documentación del Dashboard
+            </div>
+
+            @if (Model.TieneDocumentacion)
+            {
+                <div class="doc-actual-wrap">
+                    <div class="doc-actual-info">
+                        <i class="bi bi-file-earmark-check-fill" style="color:var(--c-dash);font-size:1.3rem;"></i>
+                        <div>
+                            <div class="doc-actual-nombre">@Model.DocumentacionNombreActual</div>
+                            <div class="doc-actual-sub">Documento actual cargado</div>
+                        </div>
+                    </div>
+                    <label class="doc-actual-eliminar">
+                        <input type="checkbox" asp-for="Input.EliminarDocumentacion" />
+                        <span><i class="bi bi-trash3"></i> Eliminar documento</span>
+                    </label>
+                </div>
+            }
+
+            <div class="form-field">
+                <label class="form-field-label">
+                    @(Model.TieneDocumentacion ? "Reemplazar documento" : "Subir documentación")
+                    <span class="form-field-hint">PDF, Word o PowerPoint — máx. 20 MB</span>
+                </label>
+                <div class="doc-dropzone" id="docDropZone"
+                     onclick="document.getElementById('docFileInput').click()">
+                    <i class="bi bi-cloud-upload" style="font-size:1.5rem;"></i>
+                    <span>Arrastra el archivo aquí o <strong>haz clic</strong> para seleccionar</span>
+                </div>
+                <input type="file" id="docFileInput" name="ArchivoDocumentacion"
+                       accept=".pdf,.doc,.docx,.ppt,.pptx"
+                       style="display:none"
+                       onchange="mostrarDocSeleccionado(this)" />
+                <div id="docFilePreview" class="doc-file-preview" style="display:none;">
+                    <i class="bi bi-file-earmark-fill"></i>
+                    <span id="docFileName"></span>
+                    <button type="button" onclick="limpiarDoc()" class="doc-remove-btn">
+                        <i class="bi bi-x"></i>
+                    </button>
+                </div>
+                @if (ViewData.ModelState["ArchivoDocumentacion"]?.Errors.Count > 0)
+                {
+                    <span class="form-field-error">
+                        @ViewData.ModelState["ArchivoDocumentacion"]!.Errors.First().ErrorMessage
+                    </span>
+                }
+            </div>
+
+            <div class="form-footer">
+                <a href="/Dashboards" class="btn-form-cancel">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </a>
+                <button type="submit" class="btn-form-submit btn-form-submit--dash">
+                    <i class="bi bi-floppy-fill"></i> Guardar cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        // ── Imagen ─────────────────────────────────────────────
+        function mostrarImgSeleccionada(input) {
+            if (!input.files.length) return;
+            var f = input.files[0];
+            document.getElementById('imgFileName').textContent = f.name;
+            document.getElementById('imgFilePreview').style.display = 'flex';
+            document.getElementById('imgDropZone').style.display    = 'none';
+
+            // Vista previa
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('imgPreviewImg').src = e.target.result;
+                document.getElementById('imgPreviewWrap').style.display = 'block';
+            };
+            reader.readAsDataURL(f);
+        }
+
+        function limpiarImg() {
+            document.getElementById('imgFileInput').value = '';
+            document.getElementById('imgFilePreview').style.display  = 'none';
+            document.getElementById('imgPreviewWrap').style.display  = 'none';
+            document.getElementById('imgDropZone').style.display     = '';
+        }
+
+        // ── Documentación ──────────────────────────────────────
+        function mostrarDocSeleccionado(input) {
+            if (!input.files.length) return;
+            document.getElementById('docFileName').textContent = input.files[0].name;
+            document.getElementById('docFilePreview').style.display = 'flex';
+            document.getElementById('docDropZone').style.display    = 'none';
+        }
+
+        function limpiarDoc() {
+            document.getElementById('docFileInput').value = '';
+            document.getElementById('docFilePreview').style.display = 'none';
+            document.getElementById('docDropZone').style.display    = '';
+        }
+    </script>
+}

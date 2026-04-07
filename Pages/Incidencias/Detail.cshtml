@@ -1,0 +1,164 @@
+@page
+@model CentralDashboards.Pages.Incidencias.DetailModel
+@using CentralDashboards.Pages.Shared
+@{
+    ViewData["Title"] = $"Incidencia {Model.Incidencia?.Folio}";
+    var inc = Model.Incidencia!;
+    var esAdmin = User.IsInRole("Administrador");
+}
+
+@await Html.PartialAsync("_GaleriaImagenes", Model.Imagenes)
+
+<!-- HEADER -->
+<div class="detail-header">
+    <a href="/Incidencias" class="btn-back-sq"><i class="bi bi-arrow-left"></i></a>
+
+    <div class="detail-header-text">
+        <div class="detail-title-row">
+            <h2>@inc.Titulo</h2>
+            <span class="badge-status" style="background:@(inc.ColorEstatus ?? "#6c757d")">
+                <i class="bi bi-circle-fill" style="font-size:.4rem;"></i>
+                @inc.NombreEstatus
+            </span>
+        </div>
+        <div class="detail-meta">
+            <span class="chip-folio chip-folio-inc">@inc.Folio</span>
+            <span class="detail-meta-sep">·</span>
+            <span>Dashboard: <strong>@inc.NombreDashboard</strong></span>
+            <span class="detail-meta-sep">·</span>
+            <span>Reportado por <strong>@inc.ReportadoPor</strong></span>
+            @if (!string.IsNullOrEmpty(inc.AreaReportador))
+            {
+                <span class="detail-meta-sep">·</span>
+                <span><i class="bi bi-building me-1"></i>@inc.AreaReportador</span>
+            }
+            <span class="detail-meta-sep">·</span>
+            <span><i class="bi bi-calendar3 me-1"></i>@inc.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</span>
+        </div>
+    </div>
+
+    @if (esAdmin)
+    {
+        <a href="/Incidencias/Edit?id=@inc.IncidenciaID" class="btn-cd-primary">
+            <i class="bi bi-pencil-fill"></i> Gestionar Ticket
+        </a>
+    }
+</div>
+
+<!-- ACCIONES RÁPIDAS — solo admin -->
+@if (esAdmin)
+{
+    <div class="quick-actions-bar">
+        <span class="quick-actions-label">
+            <i class="bi bi-lightning-charge-fill"></i> Acciones rápidas
+        </span>
+
+        @* Ir al Dashboard reportado directamente *@
+        <a href="/Dashboards/Ver?DashboardId=@inc.DashboardID"
+               class="btn-quick btn-quick-dash" target="_blank">
+            <i class="bi bi-grid-fill"></i>
+            Ver Dashboard
+            <span class="btn-quick-sub">@inc.NombreDashboard</span>
+        </a>
+
+   
+
+        @* Ver todos los tickets de este dashboard *@
+        <a href="/Incidencias?dashboardId=@inc.DashboardID"
+               class="btn-quick btn-quick-neutral">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            Más incidencias
+            <span class="btn-quick-sub">del mismo dashboard</span>
+        </a>
+    </div>
+}
+
+<!-- LAYOUT -->
+<div class="detail-layout">
+    <aside>
+        <div class="sidebar-card">
+            <div class="sidebar-card-header">
+                <i class="bi bi-info-circle-fill"></i> Detalles técnicos
+            </div>
+            <div class="sidebar-card-body">
+                <div class="detail-row">
+                    <span class="dr-label">Tipo</span>
+                    <span class="dr-val">@inc.TipoIncidencia</span>
+                </div>
+                <div class="detail-row">
+                    <span class="dr-label">Prioridad</span>
+                    <div style="margin-top:.25rem;">
+                        @{
+                            var priClass = inc.Prioridad switch
+                            {
+                                "Alta" => "badge-pri-alta",
+                                "Media" => "badge-pri-media",
+                                _ => "badge-pri-baja"
+                            };
+                        }
+                        <span class="badge-pill @priClass">
+                            <i class="bi bi-lightning-charge-fill"></i> @inc.Prioridad
+                        </span>
+                    </div>
+                </div>
+                <div class="detail-row">
+                    <span class="dr-label">Reportado por</span>
+                    <span class="dr-val">
+                        <span style="display:flex;align-items:center;gap:.4rem;">
+                            <i class="bi bi-person-fill" style="color:var(--c-accent);"></i>
+                            @inc.ReportadoPor
+                        </span>
+                        @if (!string.IsNullOrEmpty(inc.AreaReportador))
+                        {
+                            <span style="display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;color:var(--c-ink-3);margin-top:.25rem;">
+                                <i class="bi bi-building"></i> @inc.AreaReportador
+                            </span>
+                        }
+                    </span>
+                </div>
+                <div class="detail-row">
+                    <span class="dr-label">Asignado a</span>
+                    <span class="dr-val">
+                        @if (!string.IsNullOrEmpty(inc.AsignadoA))
+                        {
+                            <span style="display:flex;align-items:center;gap:.4rem;">
+                                <i class="bi bi-person-circle" style="color:var(--c-accent);"></i> @inc.AsignadoA
+                            </span>
+                        }
+                        else
+                        {
+                            <em style="color:var(--c-ink-4);font-size:.8rem;">Sin asignar</em>
+                        }
+                    </span>
+                </div>
+                @if (inc.FechaResolucion.HasValue)
+                {
+                    <div class="detail-row">
+                        <span class="dr-label">Resolución</span>
+                        <span class="dr-val" style="color:var(--c-success);">
+                            <i class="bi bi-check-circle-fill me-1"></i>
+                            @inc.FechaResolucion.Value.ToString("dd/MM/yyyy")
+                        </span>
+                    </div>
+                }
+            </div>
+        </div>
+    </aside>
+
+    <main>
+        <div class="content-card">
+            <div class="content-card-header">
+                <i class="bi bi-eye-fill"></i> Descripción del problema
+            </div>
+            <div class="content-card-body">@inc.Descripcion</div>
+        </div>
+
+        @Html.AntiForgeryToken()
+        @await Html.PartialAsync("_ComentariosPanel", new ComentariosPanelModel
+        {
+            TipoRegistro = "Incidencia",
+            RegistroId = inc.IncidenciaID,
+            Comentarios = Model.Comentarios
+        })
+    </main>
+</div>

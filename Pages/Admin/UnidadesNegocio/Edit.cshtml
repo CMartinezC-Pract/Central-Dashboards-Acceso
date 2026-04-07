@@ -1,0 +1,146 @@
+﻿@page
+@model CentralDashboards.Pages.Admin.UnidadesNegocio.EditModel
+@{
+    ViewData["Title"] = "Editar Unidad de Negocio";
+}
+
+<!-- HEADER -->
+<div class="form-page-header form-page-header--admin">
+    <a href="/Admin/UnidadesNegocio" class="btn-back-sq btn-back-sq--admin">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h2 class="form-page-title">Editar Unidad de Negocio</h2>
+        <p class="form-page-sub">Modifica los datos de la unidad</p>
+    </div>
+</div>
+
+<!-- CARD -->
+<div class="form-card form-card--admin" style="max-width:660px">
+    <div class="form-card-header">
+        <div class="form-card-ico"><i class="bi bi-pencil-fill"></i></div>
+        <div>
+            <h5 class="form-card-title">Editar Unidad</h5>
+            <p class="form-card-sub">Los cambios se reflejan de inmediato en el portal</p>
+        </div>
+    </div>
+
+    <div class="form-card-body">
+        <form method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Input.UnidadID" />
+
+            <div class="form-field">
+                <label asp-for="Input.Nombre" class="form-field-label">
+                    Nombre <span class="form-req">*</span>
+                </label>
+                <input asp-for="Input.Nombre" class="form-field-control" />
+                <span asp-validation-for="Input.Nombre" class="form-field-error"></span>
+            </div>
+
+            <div class="form-field">
+                <label asp-for="Input.Descripcion" class="form-field-label">Descripción</label>
+                <textarea asp-for="Input.Descripcion" class="form-field-control form-textarea"></textarea>
+            </div>
+
+            <!-- Ícono / Imagen -->
+            <div class="form-field">
+                <label class="form-field-label">
+                    <i class="bi bi-image me-1"></i> Ícono o Imagen
+                    <span class="form-field-label-opt">(opcional)</span>
+                </label>
+
+                @if (!string.IsNullOrEmpty(Model.Input.IconoURL))
+                {
+                    <div class="img-current-bar">
+                        <img src="@Model.Input.IconoURL" alt="Ícono actual"
+                             onerror="this.parentElement.style.display='none'" />
+                        <div>
+                            <strong>Ícono actual</strong>
+                            <span>Puedes reemplazarlo subiendo uno nuevo o pegando otra URL</span>
+                        </div>
+                    </div>
+                }
+
+                <div class="img-upload-box">
+                    <div class="form-field" style="margin-bottom:.75rem">
+                        <span class="form-field-hint" style="margin-bottom:.35rem">
+                            <i class="bi bi-upload"></i> Subir imagen desde tu equipo
+                        </span>
+                        <input type="file" id="iconoFile"
+                               accept="image/png,image/jpeg,image/webp,image/svg+xml,image/gif"
+                               class="form-field-control" style="padding:.4rem .7rem" />
+                    </div>
+                    <div class="img-upload-sep">─── ó ───</div>
+                    <div>
+                        <span class="form-field-hint" style="margin-bottom:.35rem">
+                            <i class="bi bi-link-45deg"></i> URL de imagen
+                        </span>
+                        <input asp-for="Input.IconoURL" class="form-field-control"
+                               id="iconoUrlInput" placeholder="https://..." />
+                    </div>
+                    <div id="iconoPreview" class="img-upload-preview" style="display:none">
+                        <span class="form-field-hint">Vista previa:</span>
+                        <img id="iconoPreviewImg" src="" alt="Preview" />
+                    </div>
+                </div>
+            </div>
+
+            <!-- Switch Activo -->
+            <div class="form-switch-box">
+                <div class="form-switch-toggle">
+                    <input asp-for="Input.Activo" type="checkbox" class="form-switch-input" id="switchActivo" />
+                    <label for="switchActivo" class="form-switch-track"></label>
+                </div>
+                <div>
+                    <div class="form-switch-label">
+                        <i class="bi bi-building-check"></i> Unidad activa
+                    </div>
+                    <div class="form-switch-desc">
+                        Las unidades inactivas no aparecen en el portal para los usuarios.
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-footer">
+                <a href="/Admin/UnidadesNegocio" class="btn-form-cancel">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </a>
+                <button type="submit" class="btn-form-submit btn-form-submit--admin">
+                    <i class="bi bi-check-lg"></i> Guardar Cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.getElementById('iconoFile').addEventListener('change', function () {
+            const file = this.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                const base64 = e.target.result;
+                document.getElementById('iconoPreviewImg').src = base64;
+                document.getElementById('iconoPreview').style.display = 'block';
+                document.getElementById('iconoUrlInput').value = base64;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('iconoUrlInput').addEventListener('input', function () {
+            const url = this.value.trim();
+            if (url && !url.startsWith('data:')) {
+                document.getElementById('iconoPreviewImg').src = url;
+                document.getElementById('iconoPreview').style.display = 'block';
+                document.getElementById('iconoFile').value = '';
+            }
+        });
+
+        document.getElementById('iconoPreviewImg').addEventListener('error', function () {
+            document.getElementById('iconoPreview').style.display = 'none';
+        });
+    </script>
+}

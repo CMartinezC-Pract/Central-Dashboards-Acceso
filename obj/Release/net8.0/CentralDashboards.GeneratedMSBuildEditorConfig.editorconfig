@@ -1,0 +1,195 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetFrameworkIdentifier = .NETCoreApp
+build_property.TargetFrameworkVersion = v8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = CentralDashboards
+build_property.RootNamespace = CentralDashboards
+build_property.ProjectDir = C:\Users\cmartinezc.pract\Music\CentralDashboards_v2\CentralDashboards_v2\CentralDashboards\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\cmartinezc.pract\Music\CentralDashboards_v2\CentralDashboards_v2\CentralDashboards
+build_property._RazorSourceGeneratorDebug = 
+build_property.EffectiveAnalysisLevelStyle = 8.0
+build_property.EnableCodeStyleSeverity = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Account/Logout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWNjb3VudFxMb2dvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Admin/Areas/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQXJlYXNcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Admin/Areas/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQXJlYXNcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Admin/Areas/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQXJlYXNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Admin/Auditoria/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQXVkaXRvcmlhXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Admin/Avisos/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQXZpc29zXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Admin/Avisos/Detalle.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQXZpc29zXERldGFsbGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Admin/Avisos/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQXZpc29zXEVkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Admin/Avisos/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQXZpc29zXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Admin/Catalogos/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cQ2F0YWxvZ29zXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Admin/UnidadesNegocio/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cVW5pZGFkZXNOZWdvY2lvXENyZWF0ZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Admin/UnidadesNegocio/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cVW5pZGFkZXNOZWdvY2lvXEVkaXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Admin/UnidadesNegocio/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cVW5pZGFkZXNOZWdvY2lvXEluZGV4LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Admin/Usuarios/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cVXN1YXJpb3NcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Admin/Usuarios/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cVXN1YXJpb3NcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Admin/Usuarios/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQWRtaW5cVXN1YXJpb3NcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Api/AvisosApi.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcQXBpXEF2aXNvc0FwaS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Dashboards/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGFzaGJvYXJkc1xDcmVhdGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Dashboards/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGFzaGJvYXJkc1xFZGl0LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Dashboards/Icono.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGFzaGJvYXJkc1xJY29uby5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Dashboards/Imagen.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGFzaGJvYXJkc1xJbWFnZW4uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Dashboards/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGFzaGJvYXJkc1xJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Dashboards/Permisos.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGFzaGJvYXJkc1xQZXJtaXNvcy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Dashboards/Ver.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRGFzaGJvYXJkc1xWZXIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcRXJyb3IuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Incidencias/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5jaWRlbmNpYXNcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Incidencias/Detail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5jaWRlbmNpYXNcRGV0YWlsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Incidencias/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5jaWRlbmNpYXNcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Incidencias/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5jaWRlbmNpYXNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Notificaciones/Api.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcTm90aWZpY2FjaW9uZXNcQXBpLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcUHJpdmFjeS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Shared/_ComentariosPanel.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9Db21lbnRhcmlvc1BhbmVsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Shared/_GaleriaImagenes.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9HYWxlcmlhSW1hZ2VuZXMuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Solicitudes/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU29saWNpdHVkZXNcQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Solicitudes/Detail.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU29saWNpdHVkZXNcRGV0YWlsLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Solicitudes/Edit.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU29saWNpdHVkZXNcRWRpdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Solicitudes/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU29saWNpdHVkZXNcSW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/cmartinezc.pract/Music/CentralDashboards_v2/CentralDashboards_v2/CentralDashboards/Pages/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = UGFnZXNcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-pbg338obrl

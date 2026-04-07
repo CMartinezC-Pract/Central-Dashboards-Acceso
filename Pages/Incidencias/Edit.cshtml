@@ -1,0 +1,92 @@
+@page
+@model CentralDashboards.Pages.Incidencias.EditModel
+@{
+    ViewData["Title"] = "Editar Incidencia";
+}
+
+<!-- HEADER -->
+<div class="form-page-header form-page-header--inc">
+    <a href="/Incidencias/Detail?id=@Model.Input.IncidenciaID" class="btn-back-sq btn-back-sq--inc">
+        <i class="bi bi-arrow-left"></i>
+    </a>
+    <div>
+        <h2 class="form-page-title">Editar Incidencia</h2>
+        <span class="chip-folio-inc">@Model.Folio</span>
+    </div>
+</div>
+
+<!-- CARD -->
+<div class="form-card form-card--inc">
+    <div class="form-card-header">
+        <div class="form-card-ico"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        <div>
+            <h5 class="form-card-title">Editar Incidencia</h5>
+            <p class="form-card-sub">Modifica el estatus, asignación y detalles</p>
+        </div>
+    </div>
+
+    <div class="form-card-body">
+        <form method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Input.IncidenciaID" />
+
+            <div class="form-two-col">
+                <div class="form-field">
+                    <label asp-for="Input.EstatusID" class="form-field-label">Estatus</label>
+                    <select asp-for="Input.EstatusID" asp-items="Model.Estatus" class="form-field-control"></select>
+                </div>
+                <div class="form-field">
+                    <label asp-for="Input.AsignadoAID" class="form-field-label">Asignar a</label>
+                    <select asp-for="Input.AsignadoAID" asp-items="Model.Admins" class="form-field-control">
+                        <option value="">Sin asignar</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-two-col">
+                <div class="form-field">
+                    <label asp-for="Input.TipoIncidenciaID" class="form-field-label">Tipo</label>
+                    <select asp-for="Input.TipoIncidenciaID" asp-items="Model.Tipos" class="form-field-control"></select>
+                </div>
+                <div class="form-field">
+                    <label class="form-field-label">Prioridad</label>
+                    <div class="pri-grid">
+                        <input type="radio" asp-for="Input.Prioridad" value="Baja" id="pBaja" class="pri-opt p-baja" />
+                        <label for="pBaja" class="pri-lbl"><span class="pri-ico">🟢</span>Baja</label>
+                        <input type="radio" asp-for="Input.Prioridad" value="Media" id="pMedia" class="pri-opt p-media" />
+                        <label for="pMedia" class="pri-lbl"><span class="pri-ico">🟡</span>Media</label>
+                        <input type="radio" asp-for="Input.Prioridad" value="Alta" id="pAlta" class="pri-opt p-alta" />
+                        <label for="pAlta" class="pri-lbl"><span class="pri-ico">🔴</span>Alta</label>
+                        <input type="radio" asp-for="Input.Prioridad" value="Critica" id="pCritica" class="pri-opt p-critica" />
+                        <label for="pCritica" class="pri-lbl"><span class="pri-ico">⚫</span>Crítica</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-field">
+                <label asp-for="Input.Titulo" class="form-field-label">Título</label>
+                <input asp-for="Input.Titulo" class="form-field-control" />
+                <span asp-validation-for="Input.Titulo" class="form-field-error"></span>
+            </div>
+
+            <div class="form-field">
+                <label asp-for="Input.Descripcion" class="form-field-label">Descripción</label>
+                <textarea asp-for="Input.Descripcion" class="form-field-control form-textarea"></textarea>
+                <span asp-validation-for="Input.Descripcion" class="form-field-error"></span>
+            </div>
+
+            <div class="form-footer">
+                <a href="/Incidencias/Detail?id=@Model.Input.IncidenciaID" class="btn-form-cancel">
+                    <i class="bi bi-x-lg"></i> Cancelar
+                </a>
+                <button type="submit" class="btn-form-submit btn-form-submit--inc">
+                    <i class="bi bi-floppy-fill"></i> Guardar cambios
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

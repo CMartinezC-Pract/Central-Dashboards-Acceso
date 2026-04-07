@@ -1,0 +1,135 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\cmartinezc.pract\\Music\\CentralDashboards_v2\\CentralDashboards_v2\\CentralDashboards\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{1DE3F014-6CC4-72BB-F504-406188D78C32}|CentralDashboards.csproj|c:\\users\\cmartinezc.pract\\music\\centraldashboards_v2\\centraldashboards_v2\\centraldashboards\\data\\centraldashboardscontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1DE3F014-6CC4-72BB-F504-406188D78C32}|CentralDashboards.csproj|solutionrelative:data\\centraldashboardscontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1DE3F014-6CC4-72BB-F504-406188D78C32}|CentralDashboards.csproj|c:\\users\\cmartinezc.pract\\music\\centraldashboards_v2\\centraldashboards_v2\\centraldashboards\\pages\\dashboards\\icono.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1DE3F014-6CC4-72BB-F504-406188D78C32}|CentralDashboards.csproj|solutionrelative:pages\\dashboards\\icono.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1DE3F014-6CC4-72BB-F504-406188D78C32}|CentralDashboards.csproj|c:\\users\\cmartinezc.pract\\music\\centraldashboards_v2\\centraldashboards_v2\\centraldashboards\\pages\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{1DE3F014-6CC4-72BB-F504-406188D78C32}|CentralDashboards.csproj|solutionrelative:pages\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1DE3F014-6CC4-72BB-F504-406188D78C32}|CentralDashboards.csproj|c:\\users\\cmartinezc.pract\\music\\centraldashboards_v2\\centraldashboards_v2\\centraldashboards\\pages\\dashboards\\icono.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{1DE3F014-6CC4-72BB-F504-406188D78C32}|CentralDashboards.csproj|solutionrelative:pages\\dashboards\\icono.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1DE3F014-6CC4-72BB-F504-406188D78C32}|CentralDashboards.csproj|c:\\users\\cmartinezc.pract\\music\\centraldashboards_v2\\centraldashboards_v2\\centraldashboards\\pages\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{1DE3F014-6CC4-72BB-F504-406188D78C32}|CentralDashboards.csproj|solutionrelative:pages\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1DE3F014-6CC4-72BB-F504-406188D78C32}|CentralDashboards.csproj|c:\\users\\cmartinezc.pract\\music\\centraldashboards_v2\\centraldashboards_v2\\centraldashboards\\pages\\index.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1DE3F014-6CC4-72BB-F504-406188D78C32}|CentralDashboards.csproj|solutionrelative:pages\\index.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{1DE3F014-6CC4-72BB-F504-406188D78C32}|CentralDashboards.csproj|c:\\users\\cmartinezc.pract\\music\\centraldashboards_v2\\centraldashboards_v2\\centraldashboards\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{1DE3F014-6CC4-72BB-F504-406188D78C32}|CentralDashboards.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 3,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\cmartinezc.pract\\Music\\CentralDashboards_v2\\CentralDashboards_v2\\CentralDashboards\\Pages\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "Pages\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\cmartinezc.pract\\Music\\CentralDashboards_v2\\CentralDashboards_v2\\CentralDashboards\\Pages\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "Pages\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-26T22:08:46.966Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Icono.cshtml.cs",
+              "DocumentMoniker": "C:\\Users\\cmartinezc.pract\\Music\\CentralDashboards_v2\\CentralDashboards_v2\\CentralDashboards\\Pages\\Dashboards\\Icono.cshtml.cs",
+              "RelativeDocumentMoniker": "Pages\\Dashboards\\Icono.cshtml.cs",
+              "ToolTip": "C:\\Users\\cmartinezc.pract\\Music\\CentralDashboards_v2\\CentralDashboards_v2\\CentralDashboards\\Pages\\Dashboards\\Icono.cshtml.cs",
+              "RelativeToolTip": "Pages\\Dashboards\\Icono.cshtml.cs",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAgwCUAAAAFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-25T22:03:37.523Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Icono.cshtml",
+              "DocumentMoniker": "C:\\Users\\cmartinezc.pract\\Music\\CentralDashboards_v2\\CentralDashboards_v2\\CentralDashboards\\Pages\\Dashboards\\Icono.cshtml",
+              "RelativeDocumentMoniker": "Pages\\Dashboards\\Icono.cshtml",
+              "ToolTip": "C:\\Users\\cmartinezc.pract\\Music\\CentralDashboards_v2\\CentralDashboards_v2\\CentralDashboards\\Pages\\Dashboards\\Icono.cshtml",
+              "RelativeToolTip": "Pages\\Dashboards\\Icono.cshtml",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAAAAAAAAAGAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-25T22:03:25.721Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "CentralDashboardsContext.cs",
+              "DocumentMoniker": "C:\\Users\\cmartinezc.pract\\Music\\CentralDashboards_v2\\CentralDashboards_v2\\CentralDashboards\\Data\\CentralDashboardsContext.cs",
+              "RelativeDocumentMoniker": "Data\\CentralDashboardsContext.cs",
+              "ToolTip": "C:\\Users\\cmartinezc.pract\\Music\\CentralDashboards_v2\\CentralDashboards_v2\\CentralDashboards\\Data\\CentralDashboardsContext.cs",
+              "RelativeToolTip": "Data\\CentralDashboardsContext.cs",
+              "ViewState": "AgIAAAABAAAAAAAAAAAuwA0BAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-25T21:35:27.672Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\cmartinezc.pract\\Music\\CentralDashboards_v2\\CentralDashboards_v2\\CentralDashboards\\Pages\\Index.cshtml",
+              "RelativeDocumentMoniker": "Pages\\Index.cshtml",
+              "ToolTip": "C:\\Users\\cmartinezc.pract\\Music\\CentralDashboards_v2\\CentralDashboards_v2\\CentralDashboards\\Pages\\Index.cshtml",
+              "RelativeToolTip": "Pages\\Index.cshtml",
+              "ViewState": "AgIAAHEDAAAAAAAAAAAowHkDAAAJAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2026-03-25T21:32:15.845Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Index.cshtml.cs",
+              "DocumentMoniker": "C:\\Users\\cmartinezc.pract\\Music\\CentralDashboards_v2\\CentralDashboards_v2\\CentralDashboards\\Pages\\Index.cshtml.cs",
+              "RelativeDocumentMoniker": "Pages\\Index.cshtml.cs",
+              "ToolTip": "C:\\Users\\cmartinezc.pract\\Music\\CentralDashboards_v2\\CentralDashboards_v2\\CentralDashboards\\Pages\\Index.cshtml.cs",
+              "RelativeToolTip": "Pages\\Index.cshtml.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-25T21:32:10.989Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\cmartinezc.pract\\Music\\CentralDashboards_v2\\CentralDashboards_v2\\CentralDashboards\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\cmartinezc.pract\\Music\\CentralDashboards_v2\\CentralDashboards_v2\\CentralDashboards\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAowBYAAAASAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-03-25T18:04:05.371Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

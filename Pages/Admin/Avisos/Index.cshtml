@@ -1,0 +1,146 @@
+﻿@page
+@model CentralDashboards.Pages.Admin.Avisos.IndexModel
+@{
+    ViewData["Title"] = "Avisos y Noticias";
+}
+
+<div class="page-header">
+    <div style="display:flex; align-items:center; gap:.75rem;">
+        <div class="module-icon admin"><i class="bi bi-megaphone-fill"></i></div>
+        <div>
+            <h4 class="page-header-title">Avisos y Noticias</h4>
+            <p class="page-header-sub">Administra los comunicados visibles en el portal</p>
+        </div>
+    </div>
+    <div class="page-header-actions">
+        <a asp-page="Create" class="btn-cd-primary">
+            <i class="bi bi-plus-lg"></i> Nuevo Aviso
+        </a>
+    </div>
+</div>
+
+@if (TempData["Ok"] != null)
+{
+    <div class="alert alert-xcaret-ok p-2 mb-3"><i class="bi bi-check-circle-fill me-2"></i>@TempData["Ok"]</div>
+}
+@if (TempData["Err"] != null)
+{
+    <div class="alert alert-xcaret-err p-2 mb-3"><i class="bi bi-x-circle-fill me-2"></i>@TempData["Err"]</div>
+}
+
+<div class="cd-table-wrap">
+    <div class="cd-table-scroll">
+        <table class="cd-table">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Título</th>
+                    <th>Fecha</th>
+                    <th>Comentarios</th>
+                    <th>Estado</th>
+                    <th>Creado por</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var av in Model.Avisos)
+                {
+                    <tr>
+                        <td>
+                            <span class="badge-pill @TipoBadge(av.Tipo)">
+                                <i class="bi @TipoIcono(av.Tipo)"></i> @av.Tipo
+                            </span>
+                        </td>
+                        <td>
+                            <div class="cd-table-name">@av.Titulo</div>
+                            <div class="cd-table-sub cd-table-sub--ellipsis">@av.Contenido</div>
+                        </td>
+                        <td class="td-meta">@av.Fecha.ToString("dd MMM yyyy")</td>
+                        <td>
+                            <span class="badge-count">@av.TotalComentarios</span>
+                        </td>
+                        <td>
+                            @if (av.Activo)
+                            {
+                                <span class="badge-pill badge-activo"><i class="bi bi-circle-fill" style="font-size:.45rem"></i> Activo</span>
+                            }
+                            else
+                            {
+                                <span class="badge-pill badge-inactivo"><i class="bi bi-circle-fill" style="font-size:.45rem"></i> Inactivo</span>
+                            }
+                        </td>
+                        <td class="td-meta">@av.CreadoPorNombre</td>
+                        <td>
+                            <div class="acciones">
+                                <a asp-page="Edit" asp-route-id="@av.Id"
+                                   class="btn-accion btn-editar" title="Editar">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                                <form method="post" asp-page-handler="CambiarEstado" style="display:inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@av.Id" />
+                                    <input type="hidden" name="activo" value="@(!av.Activo)" />
+                                    <button type="submit"
+                                            class="btn-accion btn-desact"
+                                            title="@(av.Activo ? "Desactivar" : "Activar")"
+                                            onclick="return confirm('@(av.Activo ? "¿Desactivar este aviso?" : "¿Activar este aviso?")')">
+                                        <i class="bi @(av.Activo ? "bi-eye-slash-fill" : "bi-eye-fill")"></i>
+                                    </button>
+                                </form>
+                                <form method="post" asp-page-handler="Eliminar" style="display:inline">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@av.Id" />
+                                    <button type="submit"
+                                            class="btn-accion"
+                                            style="background:var(--bg-secondary);color:var(--bg-light);"
+                                            title="Eliminar"
+                                            onclick="return confirm('¿Eliminar este aviso? También se borrarán sus comentarios.')">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                </form>
+                                <a asp-page="Detalle" asp-route-id="@av.Id"
+                                   class="btn-accion"
+                                   style="background:var(--c-purple-bg);color:var(--c-purple);"
+                                   title="Ver detalle">
+                                    <i class="bi bi-eye-fill"></i>
+                                </a>
+
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @if (!Model.Avisos.Any())
+                {
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <i class="bi bi-megaphone"></i>
+                                <p>No hay avisos registrados. Crea el primero.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="cd-table-footer">
+        Total: <strong>@Model.Avisos.Count aviso(s)</strong>
+    </div>
+</div>
+
+@functions {
+    string TipoBadge(string tipo) => tipo switch
+    {
+        "Nuevo" => "badge-activo",
+        "Actualización" => "badge-neutral",
+        "Mantenimiento" => "badge-pri-media",
+        _ => "badge-inactivo"
+    };
+    string TipoIcono(string tipo) => tipo switch
+    {
+        "Nuevo" => "bi-stars",
+        "Actualización" => "bi-arrow-repeat",
+        "Mantenimiento" => "bi-tools",
+        _ => "bi-info-circle-fill"
+    };
+}

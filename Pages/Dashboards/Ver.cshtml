@@ -1,0 +1,622 @@
+﻿@page
+@model CentralDashboards.Pages.Dashboards.VerModel
+@{
+    Layout = null;
+    ViewData["Title"] = Model.Dashboard?.Nombre ?? "Dashboard";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="../img/Icon.svg" rel="icon" type="image/svg+xml" />
+    <title>@ViewData["Title"] — Central Dashboards</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="visor-body">
+
+    <div id="visorContenedor">
+
+        <!-- HEADER DEL VISOR -->
+        <div class="visor-header">
+            <div class="visor-left">
+                <a href="/?UnidadId=@Model.Dashboard?.UnidadID" class="visor-btn-back">
+                    <i class="bi bi-arrow-left"></i> Regresar
+                </a>
+                @if (Model.Dashboard != null)
+                {
+                    <span class="visor-folio">@Model.Dashboard.Folio</span>
+                    <h5 class="visor-nombre">@Model.Dashboard.Nombre</h5>
+                    @if (Model.Dashboard.EsPrivado)
+                    {
+                        <span class="visor-badge visor-badge--priv">
+                            <i class="bi bi-shield-lock-fill"></i> Privado
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="visor-badge visor-badge--pub">
+                            <i class="bi bi-globe"></i> Público
+                        </span>
+                    }
+                }
+            </div>
+            <div class="visor-right">
+                <button class="visor-action-btn visor-action-btn--fs" onclick="pantallaCompleta()">
+                    <i class="bi bi-arrows-fullscreen"></i><span>Pantalla completa</span>
+                </button>
+
+                <!-- Guía de uso -->
+                <button class="visor-action-btn visor-action-btn--guide" onclick="abrirGuia()">
+                    <i class="bi bi-book"></i><span>Guía de uso</span>
+                </button>
+
+                <!-- Documentación — activo solo si existe -->
+                @if (Model.Dashboard?.TieneDocumentacion == true)
+                {
+                    <button class="visor-action-btn visor-action-btn--doc" onclick="abrirDocumentacion()">
+                        <i class="bi bi-file-earmark-text"></i><span>Documentación</span>
+                    </button>
+                }
+                else
+                {
+                    <button class="visor-action-btn visor-action-btn--doc" disabled
+                            title="Este dashboard no tiene documentación aún">
+                        <i class="bi bi-file-earmark-text"></i><span>Documentación</span>
+                    </button>
+                }
+
+                <button class="visor-action-btn visor-action-btn--rep" onclick="abrirReporte()">
+                    <i class="bi bi-exclamation-triangle"></i><span>Reportar</span>
+                </button>
+                <button class="visor-action-btn visor-action-btn--sol" onclick="abrirSolicitud()">
+                    <i class="bi bi-clipboard-plus"></i><span>Solicitud</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- FRAME -->
+        <div class="visor-frame-wrap">
+            @if (Model.Dashboard == null)
+            {
+                <div class="visor-no-acceso">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <h4>Dashboard no encontrado</h4>
+                    <p>No se pudo cargar el dashboard solicitado.</p>
+                    <a href="/" class="visor-btn-back">Volver al inicio</a>
+                </div>
+            }
+            else if (!Model.TieneAcceso)
+            {
+                <div class="visor-no-acceso">
+                    <i class="bi bi-lock-fill"></i>
+                    <h4>Acceso restringido</h4>
+                    <p>No tienes permiso para ver este dashboard.</p>
+                    <a href="/?UnidadId=@Model.Dashboard.UnidadID" class="visor-btn-back">Regresar</a>
+                </div>
+            }
+            else
+            {
+                <div class="visor-loader" id="visorLoader">
+                    <div class="spinner-border text-light" role="status" style="width:2.5rem;height:2.5rem;"></div>
+                    <p>Cargando dashboard...</p>
+                </div>
+                <iframe id="visorFrame" src="@Model.Dashboard.URLReporte" allowfullscreen
+                        onload="document.getElementById('visorLoader').style.display='none'"></iframe>
+            }
+        </div>
+    </div>
+
+    <!-- ══ MODAL INCIDENCIA ══════════════════════════════════════ -->
+    <div class="modal fade" id="modalReporte" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content vmodal-content">
+                <div class="vmodal-header vmodal-header--inc">
+                    <h5 class="vmodal-title">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Reportar Incidencia
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="vmodal-body">
+                    @if (Model.Dashboard != null)
+                    {
+                        <div class="vmodal-dash-bar">
+                            <span class="vmodal-dash-folio">@Model.Dashboard.Folio</span>
+                            <span class="vmodal-dash-nombre">@Model.Dashboard.Nombre</span>
+                        </div>
+                    }
+                    <div id="repFormWrap">
+                        <div class="vmodal-cols">
+                            <div class="vmodal-field">
+                                <label class="vmodal-label">Tipo de incidencia <span class="vmodal-req">*</span></label>
+                                <select id="repTipo" class="vmodal-control">
+                                    <option value="">Selecciona el tipo...</option>
+                                    @foreach (var t in Model.TiposIncidencia)
+                                    {
+                                        <option value="@t.TipoID">@t.Nombre</option>
+                                    }
+                                </select>
+                                <span class="vmodal-error" id="errTipo">Selecciona el tipo de incidencia.</span>
+                            </div>
+                            <div class="vmodal-field">
+                                <label class="vmodal-label">Prioridad</label>
+                                <select id="repPrioridad" class="vmodal-control">
+                                    <option value="Baja">🟢 Baja</option>
+                                    <option value="Media" selected>🟡 Media</option>
+                                    <option value="Alta">🔴 Alta</option>
+                                    <option value="Critica">⚫ Crítica</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="vmodal-field">
+                            <label class="vmodal-label">Título <span class="vmodal-req">*</span></label>
+                            <input type="text" id="repTitulo" class="vmodal-control"
+                                   placeholder="Describe brevemente el problema" maxlength="200" />
+                            <span class="vmodal-error" id="errTitulo">El título es obligatorio.</span>
+                        </div>
+                        <div class="vmodal-field">
+                            <label class="vmodal-label">Descripción detallada <span class="vmodal-req">*</span></label>
+                            <textarea id="repDesc" class="vmodal-control"
+                                      placeholder="Describe el problema: cuándo ocurre, qué mensaje aparece, pasos para reproducirlo..."></textarea>
+                            <span class="vmodal-error" id="errDesc">La descripción es obligatoria.</span>
+                        </div>
+                        <div class="vmodal-field">
+                            <label class="vmodal-label">
+                                Imágenes adjuntas
+                                <span class="vmodal-label-opt">(opcional, máx. 5)</span>
+                            </label>
+                            <div class="vmodal-dropzone" id="repDropZone"
+                                 onclick="document.getElementById('repImagenes').click()">
+                                <i class="bi bi-cloud-upload"></i>
+                                Arrastra imágenes aquí o haz clic para seleccionar
+                            </div>
+                            <input type="file" id="repImagenes" accept="image/*" multiple style="display:none" />
+                            <div class="vmodal-previews" id="repPreviews"></div>
+                            <div class="vmodal-img-count" id="repCounter"></div>
+                        </div>
+                    </div>
+                    <div class="vmodal-success" id="repSuccess">
+                        <div class="vmodal-success-icon vmodal-success-icon--ok">
+                            <i class="bi bi-check-lg"></i>
+                        </div>
+                        <h5>¡Incidencia registrada!</h5>
+                        <p>Tu reporte fue enviado correctamente.</p>
+                        <span class="vmodal-folio-result vmodal-folio-result--inc" id="repFolioGenerado"></span>
+                    </div>
+                </div>
+                <div class="vmodal-footer" id="repFooter">
+                    <button type="button" class="vmodal-btn-cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </button>
+                    <button type="button" class="vmodal-btn-submit vmodal-btn-submit--inc"
+                            id="btnEnviarReporte" onclick="enviarReporte()">
+                        <i class="bi bi-send-fill"></i> Registrar incidencia
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ MODAL SOLICITUD ═══════════════════════════════════════ -->
+    <div class="modal fade" id="modalSolicitud" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content vmodal-content">
+                <div class="vmodal-header vmodal-header--sol">
+                    <h5 class="vmodal-title">
+                        <i class="bi bi-clipboard-plus-fill"></i> Nueva Solicitud
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="vmodal-body">
+                    @if (Model.Dashboard != null)
+                    {
+                        <div class="vmodal-dash-bar">
+                            <span class="vmodal-dash-folio">@Model.Dashboard.Folio</span>
+                            <span class="vmodal-dash-nombre">@Model.Dashboard.Nombre</span>
+                        </div>
+                    }
+                    <div id="solFormWrap">
+                        <div class="vmodal-cols">
+                            <div class="vmodal-field">
+                                <label class="vmodal-label">Tipo de solicitud <span class="vmodal-req">*</span></label>
+                                <select id="solTipo" class="vmodal-control">
+                                    <option value="">Selecciona el tipo...</option>
+                                    @foreach (var t in Model.TiposSolicitud)
+                                    {
+                                        <option value="@t.TipoID">@t.Nombre</option>
+                                    }
+                                </select>
+                                <span class="vmodal-error" id="solErrTipo">Selecciona el tipo de solicitud.</span>
+                            </div>
+                            <div class="vmodal-field">
+                                <label class="vmodal-label">Prioridad</label>
+                                <select id="solPrioridad" class="vmodal-control">
+                                    <option value="Baja">🟢 Baja</option>
+                                    <option value="Media" selected>🟡 Media</option>
+                                    <option value="Alta">🔴 Alta</option>
+                                    <option value="Critica">⚫ Crítica</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="vmodal-field">
+                            <label class="vmodal-label">Título <span class="vmodal-req">*</span></label>
+                            <input type="text" id="solTitulo" class="vmodal-control"
+                                   placeholder="Describe brevemente tu solicitud" maxlength="200" />
+                            <span class="vmodal-error" id="solErrTitulo">El título es obligatorio.</span>
+                        </div>
+                        <div class="vmodal-field">
+                            <label class="vmodal-label">Descripción <span class="vmodal-req">*</span></label>
+                            <textarea id="solDesc" class="vmodal-control"
+                                      placeholder="Describe con detalle tu solicitud..."></textarea>
+                            <span class="vmodal-error" id="solErrDesc">La descripción es obligatoria.</span>
+                        </div>
+                        <div class="vmodal-field">
+                            <label class="vmodal-label">
+                                Imágenes adjuntas
+                                <span class="vmodal-label-opt">(opcional, máx. 5)</span>
+                            </label>
+                            <div class="vmodal-dropzone" id="solDropZone"
+                                 onclick="document.getElementById('solImagenes').click()">
+                                <i class="bi bi-cloud-upload"></i>
+                                Arrastra imágenes aquí o haz clic para seleccionar
+                            </div>
+                            <input type="file" id="solImagenes" accept="image/*" multiple style="display:none" />
+                            <div class="vmodal-previews" id="solPreviews"></div>
+                            <div class="vmodal-img-count" id="solCounter"></div>
+                        </div>
+                    </div>
+                    <div class="vmodal-success" id="solSuccess">
+                        <div class="vmodal-success-icon vmodal-success-icon--warn">
+                            <i class="bi bi-check-lg"></i>
+                        </div>
+                        <h5>¡Solicitud registrada!</h5>
+                        <p>Tu solicitud fue enviada correctamente.</p>
+                        <span class="vmodal-folio-result vmodal-folio-result--sol" id="solFolioGenerado"></span>
+                    </div>
+                </div>
+                <div class="vmodal-footer" id="solFooter">
+                    <button type="button" class="vmodal-btn-cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> Cancelar
+                    </button>
+                    <button type="button" class="vmodal-btn-submit vmodal-btn-submit--sol"
+                            id="btnEnviarSolicitud" onclick="enviarSolicitud()">
+                        <i class="bi bi-send-fill"></i> Registrar solicitud
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ MODAL GUÍA DE USO ════════════════════════════════════ -->
+    <div class="modal fade" id="modalGuia" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content vmodal-content">
+                <div class="vmodal-header vmodal-header--guide">
+                    <h5 class="vmodal-title">
+                        <i class="bi bi-book-fill"></i> Guía de Uso
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="vmodal-body" style="min-height:200px;">
+                    @if (Model.Dashboard != null)
+                    {
+                        <div class="vmodal-dash-bar">
+                            <span class="vmodal-dash-folio">@Model.Dashboard.Folio</span>
+                            <span class="vmodal-dash-nombre">@Model.Dashboard.Nombre</span>
+                        </div>
+                    }
+                    <div class="vmodal-guia-content">
+                        <div class="vmodal-guia-empty">
+                            <i class="bi bi-book" style="font-size:2.5rem;color:var(--c-ink-4);"></i>
+                            <p style="color:var(--c-ink-4);margin-top:.75rem;">
+                                La guía de uso de este dashboard estará disponible próximamente.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="vmodal-footer">
+                    <button type="button" class="vmodal-btn-cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ MODAL DOCUMENTACIÓN ══════════════════════════════════ -->
+    <div class="modal fade" id="modalDoc" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content vmodal-content">
+                <div class="vmodal-header vmodal-header--doc">
+                    <h5 class="vmodal-title">
+                        <i class="bi bi-file-earmark-text-fill"></i> Documentación
+                        @if (Model.Dashboard != null)
+                        {
+                            <span style="font-size:.85rem;font-weight:400;opacity:.8;margin-left:.5rem;">
+                                — @Model.Dashboard.DocumentacionNombre
+                            </span>
+                        }
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="vmodal-body" style="padding:.5rem;height:75vh;">
+                    <!-- Visor PDF inline -->
+                    <iframe id="docVisorFrame" src=""
+                            style="width:100%;height:100%;border:none;border-radius:8px;">
+                    </iframe>
+                    <!-- Fallback para Word/PPT (no se puede embeber en local) -->
+                    <div id="docNoVisor"
+                         style="display:none;flex-direction:column;align-items:center;
+                        justify-content:center;height:100%;gap:1rem;
+                        text-align:center;padding:2rem;">
+                        <i class="bi bi-file-earmark-word-fill"
+                           style="font-size:3.5rem;color:#2b579a;"></i>
+                        <div>
+                            <p style="font-weight:600;color:var(--c-ink-1);margin-bottom:.25rem;"
+                               id="docNoVisorNombre"></p>
+                            <p style="font-size:.85rem;color:var(--c-ink-4);">
+                                Este tipo de archivo no puede previsualizarse en el navegador.<br />
+                                Descárgalo para abrirlo con tu aplicación de Office.
+                            </p>
+                        </div>
+                        <a id="docNoVisorDescargar" href="#"
+                               class="vmodal-btn-submit vmodal-btn-submit--doc" download>
+                            <i class="bi bi-download"></i> Descargar documento
+                        </a>
+                    </div>
+                </div>
+                <div class="vmodal-footer">
+                    <button type="button" class="vmodal-btn-cancel" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg"></i> Cerrar
+                    </button>
+                    <a id="docDescargarBtn"
+                           href="/Dashboards/Ver?handler=Documento&DashboardId=@Model.Dashboard?.DashboardID&download=1"
+                           class="vmodal-btn-submit vmodal-btn-submit--doc" download>
+                        <i class="bi bi-download"></i> Descargar
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @Html.AntiForgeryToken()
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ── Pantalla completa ──────────────────────────────────
+        function pantallaCompleta() {
+        var c = document.getElementById('visorContenedor');
+        if (!document.fullscreenElement)
+        (c.requestFullscreen || c.webkitRequestFullscreen || c.mozRequestFullScreen).call(c);
+        else
+        (document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen).call(document);
+        }
+        document.addEventListener('fullscreenchange', function () {
+        var ico = document.querySelector('.visor-action-btn--fs i');
+        if (ico) ico.className = document.fullscreenElement ? 'bi bi-fullscreen-exit' : 'bi bi-arrows-fullscreen';
+        });
+
+        // ── Gestión de archivos ────────────────────────────────
+        var repFiles = [];
+        var solFiles = [];
+
+        function setupDropZone(dropId, inputId, previewId, counterId, filesArr) {
+        var drop  = document.getElementById(dropId);
+        var input = document.getElementById(inputId);
+        drop.addEventListener('dragover',  e => { e.preventDefault(); drop.classList.add('drag-over'); });
+        drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
+        drop.addEventListener('drop', e => {
+        e.preventDefault(); drop.classList.remove('drag-over');
+        addFiles(Array.from(e.dataTransfer.files), filesArr, previewId, counterId);
+        });
+        input.addEventListener('change', () => {
+        addFiles(Array.from(input.files), filesArr, previewId, counterId);
+        input.value = '';
+        });
+        }
+
+        function addFiles(newFiles, filesArr, previewId, counterId) {
+        var allowed = ['image/jpeg','image/jpg','image/png','image/gif','image/webp'];
+        newFiles.forEach(f => {
+        if (filesArr.length >= 5) return;
+        if (!allowed.includes(f.type)) return;
+        if (f.size > 5 * 1024 * 1024) return;
+        filesArr.push(f);
+        });
+        renderPreviews(filesArr, previewId, counterId);
+        }
+
+        function renderPreviews(filesArr, previewId, counterId) {
+        var wrap = document.getElementById(previewId);
+        wrap.innerHTML = '';
+        filesArr.forEach((f, i) => {
+        var url  = URL.createObjectURL(f);
+        var item = document.createElement('div');
+        item.className = 'vmodal-preview-item';
+        item.innerHTML = `<img src="${url}"><button class="vmodal-remove-img" onclick="removeFile(${i},'${previewId}','${counterId}',${previewId === 'repPreviews'})"><i class="bi bi-x"></i></button>`;
+        wrap.appendChild(item);
+        });
+        var cnt = document.getElementById(counterId);
+        cnt.textContent = filesArr.length > 0 ? `${filesArr.length}/5 imagen(es)` : '';
+        }
+
+        function removeFile(idx, previewId, counterId, isRep) {
+        var arr = isRep ? repFiles : solFiles;
+        arr.splice(idx, 1);
+        renderPreviews(arr, previewId, counterId);
+        }
+
+        setupDropZone('repDropZone', 'repImagenes', 'repPreviews', 'repCounter', repFiles);
+        setupDropZone('solDropZone', 'solImagenes', 'solPreviews', 'solCounter', solFiles);
+
+        // ── Abrir modales ──────────────────────────────────────
+        function abrirReporte()   { resetRepForm(); new bootstrap.Modal(document.getElementById('modalReporte')).show(); }
+        function abrirSolicitud() { resetSolForm(); new bootstrap.Modal(document.getElementById('modalSolicitud')).show(); }
+
+        function resetRepForm() {
+        document.getElementById('repTipo').value      = '';
+        document.getElementById('repPrioridad').value = 'Media';
+        document.getElementById('repTitulo').value    = '';
+        document.getElementById('repDesc').value      = '';
+        repFiles.length = 0;
+        renderPreviews(repFiles, 'repPreviews', 'repCounter');
+        document.querySelectorAll('#repFormWrap .vmodal-error').forEach(e => e.classList.remove('show'));
+        document.getElementById('repFormWrap').style.display = '';
+        document.getElementById('repSuccess').style.display  = 'none';
+        document.getElementById('repFooter').style.display   = '';
+        var btn = document.getElementById('btnEnviarReporte');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-send-fill"></i> Registrar incidencia';
+        }
+
+        function resetSolForm() {
+        document.getElementById('solTipo').value      = '';
+        document.getElementById('solPrioridad').value = 'Media';
+        document.getElementById('solTitulo').value    = '';
+        document.getElementById('solDesc').value      = '';
+        solFiles.length = 0;
+        renderPreviews(solFiles, 'solPreviews', 'solCounter');
+        document.querySelectorAll('#solFormWrap .vmodal-error').forEach(e => e.classList.remove('show'));
+        document.getElementById('solFormWrap').style.display = '';
+        document.getElementById('solSuccess').style.display  = 'none';
+        document.getElementById('solFooter').style.display   = '';
+        var btn = document.getElementById('btnEnviarSolicitud');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-send-fill"></i> Registrar solicitud';
+        }
+
+        // ── Enviar REPORTE ─────────────────────────────────────
+        async function enviarReporte() {
+        var tipo      = document.getElementById('repTipo').value;
+        var titulo    = document.getElementById('repTitulo').value.trim();
+        var desc      = document.getElementById('repDesc').value.trim();
+        var prioridad = document.getElementById('repPrioridad').value;
+
+        document.getElementById('errTipo').classList.toggle('show',   !tipo);
+        document.getElementById('errTitulo').classList.toggle('show', !titulo);
+        document.getElementById('errDesc').classList.toggle('show',   !desc);
+        if (!tipo || !titulo || !desc) return;
+
+        var btn = document.getElementById('btnEnviarReporte');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Enviando...';
+
+        try {
+        var token = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+        var fd = new FormData();
+        fd.append('DashboardID',      @(Model.Dashboard?.DashboardID ?? 0));
+        fd.append('TipoIncidenciaID', tipo);
+        fd.append('Titulo',           titulo);
+        fd.append('Descripcion',      desc);
+        fd.append('Prioridad',        prioridad);
+        repFiles.forEach(f => fd.append('Imagenes', f));
+
+        var resp = await fetch('/Incidencias/Create?handler=AjaxForm', {
+        method: 'POST',
+        headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' },
+        body: fd
+        });
+        var data = await resp.json();
+        if (resp.ok && data.folio) {
+        document.getElementById('repFolioGenerado').textContent = data.folio;
+        document.getElementById('repFormWrap').style.display    = 'none';
+        document.getElementById('repSuccess').style.display     = 'flex';
+        document.getElementById('repFooter').innerHTML =
+        '<button type="button" class="vmodal-btn-cancel" data-bs-dismiss="modal"><i class="bi bi-check-lg me-1"></i>Cerrar</button>';
+        } else {
+        throw new Error(data.message || 'Error al registrar la incidencia.');
+        }
+        } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-send-fill"></i> Registrar incidencia';
+        alert('Error: ' + err.message);
+        }
+        }
+
+        // ── Enviar SOLICITUD ───────────────────────────────────
+        async function enviarSolicitud() {
+        var tipo      = document.getElementById('solTipo').value;
+        var titulo    = document.getElementById('solTitulo').value.trim();
+        var desc      = document.getElementById('solDesc').value.trim();
+        var prioridad = document.getElementById('solPrioridad').value;
+
+        document.getElementById('solErrTipo').classList.toggle('show',   !tipo);
+        document.getElementById('solErrTitulo').classList.toggle('show', !titulo);
+        document.getElementById('solErrDesc').classList.toggle('show',   !desc);
+        if (!tipo || !titulo || !desc) return;
+
+        var btn = document.getElementById('btnEnviarSolicitud');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Enviando...';
+
+        try {
+        var token = document.querySelector('input[name="__RequestVerificationToken"]')?.value ?? '';
+        var fd = new FormData();
+        fd.append('DashboardID',     @(Model.Dashboard?.DashboardID ?? 0));
+        fd.append('TipoSolicitudID', tipo);
+        fd.append('Titulo',          titulo);
+        fd.append('Descripcion',     desc);
+        fd.append('Prioridad',       prioridad);
+        solFiles.forEach(f => fd.append('Imagenes', f));
+
+        var resp = await fetch('/Solicitudes/Create?handler=AjaxForm', {
+        method: 'POST',
+        headers: { 'RequestVerificationToken': token, 'X-Requested-With': 'XMLHttpRequest' },
+        body: fd
+        });
+        var data = await resp.json();
+        if (resp.ok && data.folio) {
+        document.getElementById('solFolioGenerado').textContent = data.folio;
+        document.getElementById('solFormWrap').style.display    = 'none';
+        document.getElementById('solSuccess').style.display     = 'flex';
+        document.getElementById('solFooter').innerHTML =
+        '<button type="button" class="vmodal-btn-cancel" data-bs-dismiss="modal"><i class="bi bi-check-lg me-1"></i>Cerrar</button>';
+        } else {
+        throw new Error(data.message || 'Error al registrar la solicitud.');
+        }
+        } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-send-fill"></i> Registrar solicitud';
+        }
+        }
+
+        // ── Guía de uso ────────────────────────────────────────
+        function abrirGuia() {
+        new bootstrap.Modal(document.getElementById('modalGuia')).show();
+        }
+
+        // ── Documentación ──────────────────────────────────────
+        function abrirDocumentacion() {
+        var dashId  = @(Model.Dashboard?.DashboardID ?? 0);
+        var tipo    = '@(Model.Dashboard?.DocumentacionTipo ?? "")';
+        var nombre  = '@(Html.Raw((Model.Dashboard?.DocumentacionNombre ?? "documento").Replace("'", "\\'")))';
+        var baseUrl = '/Dashboards/Ver?handler=Documento&DashboardId=' + dashId;
+
+        var frame   = document.getElementById('docVisorFrame');
+        var noVisor = document.getElementById('docNoVisor');
+
+        if (tipo === 'application/pdf') {
+        // PDF → mostrar inline en iframe
+        frame.src = baseUrl;
+        frame.style.display = '';
+        noVisor.style.display = 'none';
+        } else {
+        // Word / PPT → no se puede embeber en red local, ofrecer descarga
+        frame.src = '';
+        frame.style.display = 'none';
+        noVisor.style.display = 'flex';
+        document.getElementById('docNoVisorNombre').textContent = nombre;
+        document.getElementById('docNoVisorDescargar').href = baseUrl + '&download=1';
+        }
+
+        new bootstrap.Modal(document.getElementById('modalDoc')).show();
+        }
+
+        // Limpiar iframe al cerrar el modal para liberar memoria
+        document.getElementById('modalDoc').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('docVisorFrame').src = '';
+        });
+    </script>
+</body>
+</html>

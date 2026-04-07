@@ -1,0 +1,398 @@
+@page
+@model CentralDashboards.Pages.Admin.Usuarios.IndexModel
+@{
+    ViewData["Title"] = "Usuarios";
+}
+
+<style>
+    :root {
+        --pur: #5c2d9e;
+        --pur2: #7c4dbe;
+        --pur-light: #9d6fd4;
+        --pur-pale: #f2ecff;
+        --pur-border: #cdb8f0;
+        --green: #1a6b3c;
+        --green2: #28a85e;
+        --green-pale: #e8f5ee;
+        --green-border: #a3e6bf;
+        --red: #e8304a;
+        --red-pale: #ffe8ec;
+        --red-border: #f5b3bc;
+        --gold: #f5a623;
+        --gold-pale: #fff9ec;
+        --gold-border: #f5d98b;
+        --text: #1a0f2e;
+        --soft: #8070a8;
+        --border: #e0d5f5;
+        --bg: #f7f4ff;
+    }
+
+    /* ── HEADER ── */
+    .usr-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.75rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .usr-header-left h2 {
+        font-size: 1.75rem;
+        font-weight: 900;
+        color: var(--text);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: .55rem;
+    }
+
+        .usr-header-left h2 .icon-wrap {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--pur), var(--pur2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 12px rgba(92,45,158,.35);
+        }
+
+    .usr-header-left p {
+        margin: .25rem 0 0 52px;
+        font-size: .82rem;
+        color: var(--soft);
+    }
+
+    .btn-nuevo {
+        display: inline-flex;
+        align-items: center;
+        gap: .5rem;
+        background: linear-gradient(135deg, var(--pur), var(--pur2));
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: .65rem 1.5rem;
+        font-size: .88rem;
+        font-weight: 800;
+        text-decoration: none;
+        box-shadow: 0 4px 14px rgba(92,45,158,.35);
+        transition: transform .15s, box-shadow .15s;
+    }
+
+        .btn-nuevo:hover {
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(92,45,158,.45);
+        }
+
+    /* ── TABLA ── */
+    .tabla-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        overflow: hidden;
+        box-shadow: 0 2px 12px rgba(0,0,0,.05);
+    }
+
+        .tabla-card table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .tabla-card thead tr {
+            background: linear-gradient(90deg, var(--pur) 0%, var(--pur2) 60%, var(--pur-light) 100%);
+        }
+
+        .tabla-card thead th {
+            color: #fff;
+            font-size: .7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            padding: .9rem 1.1rem;
+            white-space: nowrap;
+            border: none;
+        }
+
+        .tabla-card tbody tr {
+            border-bottom: 1px solid #f3f0fb;
+            transition: background .12s;
+        }
+
+            .tabla-card tbody tr:last-child {
+                border-bottom: none;
+            }
+
+            .tabla-card tbody tr:hover {
+                background: #faf8ff;
+            }
+
+        .tabla-card tbody td {
+            padding: .8rem 1.1rem;
+            font-size: .85rem;
+            color: var(--text);
+            vertical-align: middle;
+        }
+
+    /* usuario con avatar */
+    .td-usuario {
+        display: flex;
+        align-items: center;
+        gap: .7rem;
+    }
+
+    .usr-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, var(--pur), var(--pur2));
+        color: #fff;
+        font-size: .7rem;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        letter-spacing: .3px;
+    }
+
+    .usr-nombre {
+        font-weight: 800;
+        color: var(--text);
+    }
+
+    .usr-correo {
+        font-size: .75rem;
+        color: var(--soft);
+    }
+
+    /* badges */
+    .bdg {
+        display: inline-flex;
+        align-items: center;
+        gap: .3rem;
+        font-size: .7rem;
+        font-weight: 800;
+        padding: .22rem .65rem;
+        border-radius: 20px;
+        white-space: nowrap;
+    }
+
+    .bdg-admin {
+        background: var(--pur-pale);
+        color: var(--pur);
+        border: 1px solid var(--pur-border);
+    }
+
+    .bdg-user {
+        background: #f5f5f5;
+        color: #666;
+        border: 1px solid #e0e0e0;
+    }
+
+    .bdg-area {
+        background: var(--pur-pale);
+        color: var(--pur);
+        border: 1px solid var(--pur-border);
+        font-size: .72rem;
+    }
+
+    .bdg-activo {
+        background: var(--green-pale);
+        color: var(--green);
+        border: 1px solid var(--green-border);
+    }
+
+    .bdg-inact {
+        background: #f5f5f5;
+        color: #999;
+        border: 1px solid #e0e0e0;
+    }
+
+    .td-meta {
+        font-size: .77rem;
+        color: var(--soft);
+    }
+
+    .td-nunca {
+        font-size: .77rem;
+        color: #ccc;
+        font-style: italic;
+    }
+
+    /* acciones */
+    .acciones {
+        display: flex;
+        gap: .4rem;
+    }
+
+    .btn-accion {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .9rem;
+        border: none;
+        cursor: pointer;
+        text-decoration: none;
+        transition: transform .12s, box-shadow .12s;
+    }
+
+        .btn-accion:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,.15);
+        }
+
+    .btn-editar {
+        background: var(--pur-pale);
+        color: var(--pur);
+    }
+
+    .btn-desact {
+        background: var(--red-pale);
+        color: var(--red);
+    }
+
+    /* empty */
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #ccc;
+    }
+
+        .empty-state i {
+            font-size: 2.8rem;
+            display: block;
+            margin-bottom: .75rem;
+        }
+
+    @@media (max-width: 768px) {
+        .tabla-card {
+            overflow-x: auto;
+        }
+
+        .usr-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+</style>
+
+<!-- HEADER -->
+<div class="usr-header">
+    <div class="usr-header-left">
+        <h2>
+            <span class="icon-wrap"><i class="bi bi-people-fill"></i></span>
+            Usuarios
+        </h2>
+        <p>Gestión de acceso al sistema</p>
+    </div>
+    <a href="/Admin/Usuarios/Create" class="btn-nuevo">
+        <i class="bi bi-person-plus-fill"></i> Nuevo usuario
+    </a>
+</div>
+
+<!-- TABLA -->
+<div class="tabla-card">
+    <div style="overflow-x:auto;">
+        <table>
+            <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Rol</th>
+                    <th>Área</th>
+                    <th>Último acceso</th>
+                    <th>Estatus</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Usuarios.Any())
+                {
+                    <tr>
+                        <td colspan="6">
+                            <div class="empty-state">
+                                <i class="bi bi-people"></i>
+                                <p>No hay usuarios registrados</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @foreach (var u in Model.Usuarios)
+                {
+                    var iniciales = u.Nombre.Split(' ')
+                    .Where(p => p.Length > 0)
+                    .Take(2)
+                    .Aggregate("", (a, p) => a + p[0])
+                    .ToUpper();
+                    <tr>
+                        <td>
+                            <div class="td-usuario">
+                                <div class="usr-avatar">@iniciales</div>
+                                <div>
+                                    <div class="usr-nombre">@u.Nombre</div>
+                                    <div class="usr-correo">@u.Correo</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="bdg @(u.NombreRol == "Administrador" ? "bdg-admin" : "bdg-user")">
+                                <i class="bi @(u.NombreRol == "Administrador" ? "bi-shield-fill" : "bi-person-fill")"></i>
+                                @u.NombreRol
+                            </span>
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(u.NombreArea))
+                            {
+                                <span class="bdg bdg-area">
+                                    <i class="bi bi-building"></i> @u.NombreArea
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="td-nunca">—</span>
+                            }
+                        </td>
+                        <td>
+                            @if (u.UltimoAcceso.HasValue)
+                            {
+                                <span class="td-meta">@u.UltimoAcceso.Value.ToString("dd/MM/yy HH:mm")</span>
+                            }
+                            else
+                            {
+                                <span class="td-nunca">Nunca</span>
+                            }
+                        </td>
+                        <td>
+                            <span class="bdg @(u.Activo ? "bdg-activo" : "bdg-inact")">
+                                <i class="bi @(u.Activo ? "bi-check-circle-fill" : "bi-slash-circle")"></i>
+                                @(u.Activo ? "Activo" : "Inactivo")
+                            </span>
+                        </td>
+                        <td>
+                            <div class="acciones">
+                                <a href="/Admin/Usuarios/Edit?id=@u.UsuarioID"
+                                   class="btn-accion btn-editar" title="Editar">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                                @if (u.Activo)
+                                {
+                                    <button class="btn-accion btn-desact"
+                                            onclick="confirmarBaja('/Admin/Usuarios/Desactivar?id=@u.UsuarioID','@u.Nombre')"
+                                            title="Desactivar">
+                                        <i class="bi bi-person-x-fill"></i>
+                                    </button>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
